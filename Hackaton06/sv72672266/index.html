@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackaton 05 y 06</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Sistema de Reparación de Celulares</h1>
+        
+        <!-- Navbar de Pestañas -->
+        <nav class="tabs-nav">
+            <button class="tab-btn active" data-tab="registro">
+                <span class="tab-icon">📝</span>
+                Registro
+            </button>
+            <button class="tab-btn" data-tab="diagnostico">
+                <span class="tab-icon">🔍</span>
+                Diagnóstico
+            </button>
+            <button class="tab-btn" data-tab="autorizacion">
+                <span class="tab-icon">✓</span>
+                Autorización
+            </button>
+            <button class="tab-btn" data-tab="tecnicos">
+                <span class="tab-icon">👨‍🔧</span>
+                Técnicos
+            </button>
+            <button class="tab-btn" data-tab="asignacion">
+                <span class="tab-icon">🔧</span>
+                Asignación
+            </button>
+            <button class="tab-btn" data-tab="estado">
+                <span class="tab-icon">📊</span>
+                Estado
+            </button>
+            <button class="tab-btn" data-tab="storage">
+                <span class="tab-icon">💾</span>
+                Storage
+            </button>
+        </nav>
+
+        <!-- Contenido de las Pestañas -->
+        <div class="tabs-content">
+            
+            <!-- Pestaña 1: Registro de Teléfono -->
+            <div class="tab-pane active" id="registro">
+                <section class="section">
+                    <h2>Registro de Teléfono</h2>
+                    <form id="phoneForm">
+                        <div class="form-group">
+                            <label>Número de Serie:</label>
+                            <input type="text" id="serialNumber" required>
+                        </div>
+                        <div class="form-group">
+                            <label>IMEI:</label>
+                            <input type="text" id="imei" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Marca:</label>
+                            <select id="brand" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Apple">Apple</option>
+                                <option value="Samsung">Samsung</option>
+                                <option value="Huawei">Huawei</option>
+                                <option value="Xiaomi">Xiaomi</option>
+                                <option value="Motorola">Motorola</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Modelo:</label>
+                            <input type="text" id="model" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cliente:</label>
+                            <input type="text" id="clientName" required>
+                        </div>
+                        <button type="submit">Registrar Teléfono</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Pestaña 2: Diagnóstico -->
+            <div class="tab-pane" id="diagnostico">
+                <section class="section">
+                    <h2>Diagnóstico Inicial</h2>
+                    <form id="diagnosisForm">
+                        <div class="form-group">
+                            <label>Seleccionar Teléfono:</label>
+                            <select id="phoneSelect" required>
+                                <option value="">Seleccione un teléfono...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Diagnóstico:</label>
+                            <textarea id="diagnosis" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Costo Estimado:</label>
+                            <input type="number" id="estimatedCost" min="0" step="0.01" required>
+                        </div>
+                        <button type="submit">Guardar Diagnóstico</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Pestaña 3: Autorización -->
+            <div class="tab-pane" id="autorizacion">
+                <section class="section">
+                    <h2>Autorización y Abono</h2>
+                    <form id="authorizationForm">
+                        <div class="form-group">
+                            <label>Seleccionar Teléfono:</label>
+                            <select id="authPhoneSelect" required>
+                                <option value="">Seleccione un teléfono...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="authorizationCheck" required>
+                                Autorización escrita del cliente
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Monto Abonado (50%):</label>
+                            <input type="number" id="depositAmount" min="0" step="0.01" required>
+                        </div>
+                        <button type="submit">Autorizar Servicio</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Pestaña 4: Técnicos -->
+            <div class="tab-pane" id="tecnicos">
+                <section class="section">
+                    <h2>Gestión de Técnicos</h2>
+                    <form id="technicianForm">
+                        <div class="form-group">
+                            <label>Nombre del Técnico:</label>
+                            <input type="text" id="technicianName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Skills (separados por coma):</label>
+                            <input type="text" id="technicianSkills" placeholder="Apple, Samsung, Huawei" required>
+                        </div>
+                        <button type="submit">Registrar Técnico</button>
+                    </form>
+                    <div id="techniciansList"></div>
+                </section>
+            </div>
+
+            <!-- Pestaña 5: Asignación -->
+            <div class="tab-pane" id="asignacion">
+                <section class="section">
+                    <h2>Asignar Técnico y Repuestos</h2>
+                    <form id="assignmentForm">
+                        <div class="form-group">
+                            <label>Seleccionar Teléfono:</label>
+                            <select id="assignPhoneSelect" required>
+                                <option value="">Seleccione un teléfono...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Seleccionar Técnico:</label>
+                            <select id="technicianSelect" required>
+                                <option value="">Seleccione un técnico...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Repuesto:</label>
+                            <input type="text" id="sparePart" placeholder="Ej: Pantalla LCD">
+                        </div>
+                        <div class="form-group">
+                            <label>Costo Repuesto:</label>
+                            <input type="number" id="sparePartCost" min="0" step="0.01">
+                        </div>
+                        <button type="submit">Asignar y Agregar Repuesto</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Pestaña 6: Estado de Equipos -->
+            <div class="tab-pane" id="estado">
+                <section class="section">
+                    <h2>Estado de Equipos</h2>
+                    <div id="equipmentStatus"></div>
+                </section>
+            </div>
+
+            <!-- Pestaña 7: Control de Storage -->
+            <div class="tab-pane" id="storage">
+                <section class="section">
+                    <h2>Control de Datos</h2>
+                    <div class="storage-controls">
+                        <button onclick="repairSystem.showStorageInfo()">📊 Mostrar Info de Storage</button>
+                        <button onclick="repairSystem.clearAllData()" class="btn-danger">🗑️ Limpiar Todos los Datos</button>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
