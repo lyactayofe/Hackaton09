@@ -1,0 +1,59 @@
+{
+  "info": {
+    "_postman_id": "88302fb9-4262-415c-b613-f77c1ab387e7",
+    "name": "Backend 2026-01",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "24238005"
+  },
+  "item": [
+    {
+      "name": "getData",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "weather",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-rapidapi-host",
+            "value": "weather-api99.p.rapidapi.com",
+            "type": "text"
+          },
+          {
+            "key": "x-rapidapi-key",
+            "value": "73d70d2c28msh7f79106bce6c25ep19a96ajsn943644966186",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://weather-api99.p.rapidapi.com/weather?city=Quito",
+          "protocol": "https",
+          "host": [
+            "weather-api99",
+            "p",
+            "rapidapi",
+            "com"
+          ],
+          "path": [
+            "weather"
+          ],
+          "query": [
+            {
+              "key": "city",
+              "value": "Quito"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
