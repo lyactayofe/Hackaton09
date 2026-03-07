@@ -142,7 +142,7 @@ function capLast(texto) {
     .join(" ");
 }
 
-//24
+//25
 function quizFuncionYArgumentos(definicion, limiteArgumentos) {
   const opcionesDefinicion = [
     "Las funciones son objetos de primera clase, es decir, se pueden manipular y transmitir como cualquier otro objeto.",
