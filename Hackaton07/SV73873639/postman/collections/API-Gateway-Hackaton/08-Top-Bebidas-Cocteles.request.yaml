@@ -1,0 +1,23 @@
+$kind: http-request
+name: '08 - Consultar top 10 de bebidas y cócteles'
+method: GET
+url: 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=Cocktail'
+description: 'Consulta el top de bebidas y cócteles usando TheCocktailDB. API gratuita. Devuelve lista de cócteles de la categoría seleccionada.'
+order: 8000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Cócteles obtenidos", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene lista de bebidas", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.drinks).to.be.an("array");
+      });
+
+      var data = pm.response.json();
+      var top10 = data.drinks.slice(0, 10);
+      console.log("Top 10 cócteles:");
+      top10.forEach((d, i) => console.log((i+1) + ".", d.strDrink));

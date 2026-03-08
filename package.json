@@ -1,0 +1,26 @@
+{
+  "name": "backend-00.01.2026-01",
+  "version": "1.0.0",
+  "description": "Repo del Curso de Backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DSanchezVargas/Backend-00.01.2026-01.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DSanchezVargas/Backend-00.01.2026-01/issues"
+  },
+  "homepage": "https://github.com/DSanchezVargas/Backend-00.01.2026-01#readme",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

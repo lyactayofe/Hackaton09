@@ -1,0 +1,31 @@
+$kind: http-request
+name: '15 - Consultar datos específicos de Marte (NASA)'
+method: GET
+url: 'https://api.nasa.gov/'
+description: 'Consulta fotos y datos de Marte tomados por el rover Curiosity de la NASA. Usa DEMO_KEY para pruebas (límite 30 req/hora). Para más requests, obtén API key gratuita en https://api.nasa.gov'
+order: 15000
+queryParams:
+  - key: sol
+    value: '1000'
+  -  key: Authorization
+     value: 'ShtDCgeZ2ZLId2q7N3TwCVhoas4W6bmq3mJMA09g'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Datos de Marte obtenidos", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene fotos de Marte", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.photos).to.be.an("array");
+      });
+
+      var data = pm.response.json();
+      console.log("Fotos de Marte encontradas:", data.photos.length);
+      if(data.photos.length > 0) {
+          console.log("Rover:", data.photos[0].rover.name);
+          console.log("Cámara:", data.photos[0].camera.full_name);
+          console.log("Fecha:", data.photos[0].earth_date);
+      }

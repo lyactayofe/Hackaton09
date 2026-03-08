@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema de Gestión Reparaciones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --primary-hover: #45a049;
+      --border: #d9d9d9;
+      --bg: #f7f7f7;
+      --text: #333;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    main {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      margin: 4px 0;
+      padding: 10px 14px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: 600;
+      letter-spacing: .2px;
+    }
+    button:hover { background-color: var(--primary-hover); }
+    button.secondary {
+      background: white;
+      color: #222;
+      border: 1px solid var(--border);
+    }
+    #resultado {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      white-space: pre-wrap;
+      background: #fff;
+      min-height: 120px;
+    }
+    .muted {
+      color: #666;
+      font-size: .95rem;
+    }
+    footer {
+      text-align: center;
+      padding: 20px 0 40px;
+      color: #777;
+      font-size: .9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sistema de Gestion de Reparacion VTELCA</h1>
+    <h3>Por Ruben Rojas</h3>
+  
+  </header>
+
+
+
+  <main>
+    <section class="card">
+      <h2 style="margin-top:0;">Acciones</h2>
+      <div class="row">
+        <button id="btnIngresarTelefono">Ingresar Teléfono</button>
+        <button id="btnDiagnostico">Registrar Diagnóstico</button>
+        <button id="btnAutorizacion">Autorizar y Pagar</button>
+        <button id="btnAsignarTecnico">Asignar Técnico</button>
+        <button id="btnAgregarRepuesto">Agregar Repuesto</button>
+      </div>
+      <p class="muted" style="margin:8px 0 0;">
+      
+      </p>
+      <div id="resultado" style="margin-top:12px;">Progreso de la Reparación</div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0;"></h2> 
+      <div class="row">
+        <button id="btnGuardarEstado" class="secondary">Guardar estado</button>
+        <button id="btnCargarEstado" class="secondary">Cargar estado</button>
+        <button id="btnLimpiarEstado" class="secondary">Limpiar estado</button>
+      </div>
+     
+    </section>
+  </main>
+
+  <footer>
+    <h5>Mini proyecto de objetos y LocalStorage juntos para agilizar la puntuacion</h5>
+  </footer>
+
+ 
+  <script src="app.js" defer></script>
+  <script>
+  
+    document.addEventListener("DOMContentLoaded", () => {
+      const btnG = document.getElementById("btnGuardarEstado");
+      const btnC = document.getElementById("btnCargarEstado");
+      const btnL = document.getElementById("btnLimpiarEstado");
+
+      if (btnG && typeof window.guardarEstadoActual === 'function') {
+        btnG.addEventListener("click", () => {
+          window.guardarEstadoActual();
+          Swal.fire("Guardado", "Estado actual guardado en LocalStorage.", "success");
+        });
+      }
+      if (btnC && typeof window.cargarEstadoActual === 'function') {
+        btnC.addEventListener("click", () => {
+          const ok = window.cargarEstadoActual();
+          if (ok) {
+          
+            if (typeof window.render === 'function') window.render("Estado cargado desde LocalStorage.");
+            else Swal.fire("Cargado", "Estado cargado.", "success");
+          } else {
+            Swal.fire("Sin datos", "No hay estado guardado.", "info");
+          }
+        });
+      }
+      if (btnL) {
+        btnL.addEventListener("click", () => {
+          if (typeof window.limpiarEstadoActual === 'function') {
+            window.limpiarEstadoActual();
+          } else {
+            
+            localStorage.removeItem("repairApp:estadoActual");
+          }
+          // limpia el estado actual en memoria
+          window.telefonoActual = null;
+          window.reparacionActual = null;
+          if (typeof window.render === 'function') window.render("Estado limpiado.");
+          else Swal.fire("Listo", "Estado limpiado.", "success");
+        });
+      }
+    });
+  </script>
+</body>
+</html>

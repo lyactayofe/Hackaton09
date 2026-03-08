@@ -1,0 +1,28 @@
+$kind: http-request
+name: '09 - Consultar listado de productos de una tienda'
+method: GET
+url: 'https://fakestoreapi.com/products'
+description: 'Consulta el listado completo de productos de una tienda ficticia usando FakeStore API. Gratuita, sin autenticación.'
+order: 9000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Productos obtenidos", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Es un array de productos", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.be.an("array");
+          pm.expect(jsonData.length).to.be.greaterThan(0);
+      });
+
+      pm.test("Cada producto tiene precio", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData[0].price).to.exist;
+      });
+
+      var data = pm.response.json();
+      console.log("Total productos:", data.length);
+      data.slice(0,3).forEach(p => console.log("-", p.title, "- S/.", p.price));

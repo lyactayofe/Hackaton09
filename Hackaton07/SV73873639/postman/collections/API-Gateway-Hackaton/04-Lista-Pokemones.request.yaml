@@ -1,0 +1,28 @@
+$kind: http-request
+name: '04 - Consultar lista de Pokemones'
+method: GET
+url: 'https://pokeapi.co/api/v2/pokemon'
+description: 'Consulta la lista actual de Pokemones usando PokéAPI. Completamente gratuita. Puedes cambiar limit y offset para paginar.'
+order: 4000
+queryParams:
+  - key: limit
+    value: '{{pokemon_limit}}'
+  - key: offset
+    value: '0'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Lista obtenida", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene lista de pokemones", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.results).to.be.an("array");
+          pm.expect(jsonData.results.length).to.be.greaterThan(0);
+      });
+
+      var data = pm.response.json();
+      console.log("Total de pokemones:", data.count);
+      console.log("Primeros pokemones:", data.results.map(p => p.name).join(", "));

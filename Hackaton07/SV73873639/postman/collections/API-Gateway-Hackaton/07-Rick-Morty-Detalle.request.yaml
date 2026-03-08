@@ -1,0 +1,25 @@
+$kind: http-request
+name: '07 - Consultar detalle de un personaje de Rick and Morty'
+method: GET
+url: 'https://rickandmortyapi.com/api/character/{{rm_id}}'
+description: 'Consulta el detalle completo de un personaje específico de Rick and Morty. Cambia rick_character_id para ver otro personaje (1=Rick, 2=Morty).'
+order: 7000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Personaje encontrado", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene nombre y estado", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.name).to.exist;
+          pm.expect(jsonData.status).to.exist;
+      });
+
+      var data = pm.response.json();
+      console.log("Nombre:", data.name);
+      console.log("Estado:", data.status);
+      console.log("Especie:", data.species);
+      console.log("Origen:", data.origin.name);

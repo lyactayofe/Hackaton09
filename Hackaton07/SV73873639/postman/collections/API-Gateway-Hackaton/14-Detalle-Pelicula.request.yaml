@@ -1,0 +1,33 @@
+$kind: http-request
+name: '14 - Consultar detalle de una película específica'
+method: GET
+url: 'https://api.themoviedb.org/3/movie/{{movie_id}}?language=es-PE'
+description: 'Consulta el detalle completo de una película específica. movie_id=550 es Fight Club. Cambia la variable movie_id para otra película. REQUIERE API KEY de TMDB.'
+order: 14000
+headers:
+  - key: Authorization
+    value: 'Bearer {{tmdb_api_key}}'
+  - key: accept
+    value: 'application/json'
+queryParams:
+  - key: language
+    value: es-PE
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Película encontrada", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene título y descripción", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.title).to.exist;
+          pm.expect(jsonData.overview).to.exist;
+      });
+
+      var data = pm.response.json();
+      console.log("Título:", data.title);
+      console.log("Año:", data.release_date);
+      console.log("Rating:", data.vote_average);
+      console.log("Sinopsis:", data.overview);

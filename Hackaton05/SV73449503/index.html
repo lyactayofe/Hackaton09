@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reto 1 - JavaScript y HTTP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <header class="hero card">
+        <h1>Hackaton05</h1>
+        <p>
+          Sistema de reparaciones con clases y objetos: validación de equipo, diagnóstico,
+          autorización, abono, técnico por skills, repuestos y estados por estación.
+        </p>
+      </header>
+
+      <section class="card grid two">
+        <div>
+          <h2>1) Registrar ingreso</h2>
+          <form id="form-ingreso" class="form">
+            <label>Cliente <input name="cliente" required /></label>
+            <label>Número de serie <input name="serie" required /></label>
+            <label>IMEI <input name="imei" required /></label>
+            <label>Marca <input name="marca" placeholder="Samsung" required /></label>
+            <label>Modelo <input name="modelo" required /></label>
+            <label>Sucursal <input name="sucursal" required /></label>
+            <button type="submit">Registrar equipo</button>
+          </form>
+        </div>
+        <div>
+          <h2>Reparación activa</h2>
+          <label class="selector"
+            >Seleccionar reparación
+            <select id="reparacion-select"></select>
+          </label>
+          <div id="estado-actual" class="status">Sin reparaciones</div>
+          <ul id="timeline" class="timeline"></ul>
+        </div>
+      </section>
+
+      <section class="card grid three">
+        <div>
+          <h2>2) Primera revisión</h2>
+          <form id="form-diagnostico" class="form">
+            <label>Diagnóstico <textarea name="descripcion" rows="4" required></textarea></label>
+            <label>Costo estimado (S/) <input name="costo" type="number" min="1" required /></label>
+            <button type="submit">Guardar diagnóstico</button>
+          </form>
+        </div>
+
+        <div>
+          <h2>3) Autorización y abono</h2>
+          <form id="form-autorizacion" class="form">
+            <label class="check"
+              ><input name="autorizado" type="checkbox" /> Autorización escrita recibida</label
+            >
+            <label>Abono (S/) <input name="abono" type="number" min="0" step="0.01" /></label>
+            <button type="submit">Registrar condición</button>
+          </form>
+        </div>
+
+        <div>
+          <h2>4) Técnico y repuestos</h2>
+          <form id="form-tecnico" class="form">
+            <label>Técnico
+              <select name="tecnico" id="tecnico-select"></select>
+            </label>
+            <button type="submit">Asignar técnico</button>
+          </form>
+
+          <form id="form-repuesto" class="form compact">
+            <label>Código <input name="codigo" required /></label>
+            <label>Nombre <input name="nombre" required /></label>
+            <label>Costo <input name="costo" type="number" min="1" required /></label>
+            <button type="submit">Agregar repuesto</button>
+          </form>
+          <ul id="lista-repuestos" class="list"></ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>5) Flujo de estaciones</h2>
+        <div class="actions">
+          <button data-action="iniciar">Iniciar reparación</button>
+          <button data-action="calidad">Pasar a calidad</button>
+          <button data-action="listo">Marcar listo para entrega</button>
+          <button data-action="entregar">Entregar equipo</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Resumen del caso</h2>
+        <pre id="resumen"></pre>
+      </section>
+
+      <p id="toast" class="toast" aria-live="polite"></p>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
+

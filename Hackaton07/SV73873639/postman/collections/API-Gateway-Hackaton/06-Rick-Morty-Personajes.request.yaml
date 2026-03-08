@@ -1,0 +1,22 @@
+$kind: http-request
+name: '06 - Consultar personajes de Rick and Morty'
+method: GET
+url: 'https://rickandmortyapi.com/api/character'
+description: 'Consulta los principales personajes de la serie Rick and Morty. API gratuita sin autenticación.'
+order: 6000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Personajes obtenidos", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene lista de personajes", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.results).to.be.an("array");
+      });
+
+      var data = pm.response.json();
+      console.log("Total personajes:", data.info.count);
+      console.log("Primeros personajes:", data.results.slice(0,5).map(c => c.name).join(", "));

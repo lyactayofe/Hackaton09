@@ -1,0 +1,3 @@
+$kind: collection
+name: API Gateway - Hackaton 07
+description: 'Colección completa del API Gateway para el Hackaton 07 de IDAT. Centraliza 14 APIs públicas: GitHub, NASA, Clima, Pokémon, Rick & Morty, Cócteles, Tienda, Fotos, Citas, Usuarios, Películas y más.'

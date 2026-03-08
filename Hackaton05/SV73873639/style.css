@@ -1,0 +1,319 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+
+:root {
+    --bg-main: #0a0b1e;
+    --neon-pink: #ff2d55;
+    --neon-blue: #5856d6;
+    --neon-green: #39ff14;
+    --glass-white: rgba(255, 255, 255, 0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    padding: 20px 20px 60px 20px; font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top, #1b1c3d 0%, #0a0b1e 100%);
+    color: white; min-height: 100vh; display: flex; justify-content: center;
+    overflow-x: hidden;
+}
+
+.stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+    z-index: -1; animation: moveStars 150s linear infinite; opacity: 0.3;
+}
+@keyframes moveStars { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
+
+.container { width: 100%; max-width: 850px; }
+
+.main-header { text-align: center; margin-bottom: 25px; padding-top: 20px; }
+.main-header h1 { font-weight: 900; font-size: 2.5rem; letter-spacing: -1px; }
+.main-header p { color: var(--neon-pink); font-size: 0.75rem; font-weight: 800; letter-spacing: 3px; margin-top: 5px; }
+
+.card {
+    background: var(--glass-white); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+    padding: 25px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.section-title { font-size: 1.2rem; margin-bottom: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+
+.progress-track { height: 10px; background: rgba(0,0,0,0.4); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; background: var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink); transition: 0.8s ease; }
+.progress-fill.success { background: var(--neon-green) !important; box-shadow: 0 0 25px var(--neon-green) !important; }
+
+.steps-labels { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 900; opacity: 0.6; }
+
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+.field-group { margin-bottom: 20px; }
+label { display: block; font-size: 0.75rem; font-weight: 900; margin-bottom: 8px; color: var(--neon-pink); text-transform: uppercase; }
+
+input, select, textarea {
+    width: 100%; padding: 15px; background: #0f0f2d; border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px; color: white; font-size: 1rem; outline: none; transition: 0.3s;
+}
+
+.tech-table, .tech-table-container { background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+
+/* 2. ESPACIO CORREGIDO ENTRE FASE Y CLIENTE */
+#status-display { margin-bottom: 25px; }
+
+.info-ticket-header {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(88, 86, 214, 0.3);
+    border-radius: 15px; padding: 15px 25px; 
+    margin-top: 10px; margin-bottom: 30px; /* Aquí le damos el aire necesario */
+    display: flex; justify-content: space-around; align-items: center;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+}
+
+.info-ticket-header div { text-align: center; }
+.info-ticket-header label { margin-bottom: 2px; opacity: 0.8; font-size: 0.65rem; color: var(--neon-pink); }
+.info-ticket-header b { font-size: 1.1rem; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+.info-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); }
+
+/* 4. HOVER DE TÉCNICOS CORREGIDO */
+.tecnico-row { position: relative; padding: 12px; border-radius: 8px; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: help; }
+.tecnico-row:hover { background: rgba(255,255,255,0.05); }
+
+.skills-info {
+    visibility: hidden; opacity: 0;
+    position: absolute; right: 105%; top: 50%; transform: translateY(-50%);
+    width: 220px; background: #0f0f2d; border: 2px solid var(--neon-blue);
+    padding: 15px; border-radius: 12px; z-index: 9999; transition: all 0.3s ease;
+    box-shadow: 0 0 25px rgba(88, 86, 214, 0.8); pointer-events: none;
+}
+.tecnico-row:hover .skills-info { visibility: visible; opacity: 1; right: 102%; }
+.skills-title { color: var(--neon-blue); font-size: 0.75rem; font-weight: 800; display: block; margin-bottom: 8px; }
+.skill-tag { display: inline-block; background: var(--neon-blue); padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 0.65rem; font-weight: bold; }
+
+.flex-row { display: flex; align-items: center; gap: 10px; }
+.tech-status { font-size: 0.7rem; opacity: 0.6; }
+.status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.status-dot.green { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
+.status-dot.red { background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); }
+.repuestos-lista { margin-top: 15px; font-size: 0.85rem; color: var(--neon-green); }
+
+/* 1 y 6. CONTENEDOR DE HISTORIAL SEPARADO */
+.history-container {
+    margin-top: 50px; /* Separación clara de la página principal */
+    border: 2px dashed rgba(88, 86, 214, 0.5); /* Borde que respeta el espacio */
+    background: rgba(0,0,0,0.3);
+}
+
+.client-card-modern {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px; padding: 20px; margin-bottom: 15px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;
+}
+.client-card-modern .client-value { font-weight: 900; color: white; font-size: 1.1rem; }
+.client-card-modern .client-sub { font-size: 0.85rem; color: var(--neon-blue); font-weight: 600; }
+.client-card-modern .text-right { text-align: right; }
+.client-card-modern .full-width { grid-column: 1 / span 2; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 5px; }
+.client-card-modern .problem-text { font-size: 0.9rem; font-style: italic; color: var(--neon-green); margin: 5px 0; font-weight: 600;}
+
+.checkbox-line { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--neon-pink); cursor: pointer; }
+
+.btn-neon-blue, .btn-neon-pink, .btn-neon-green {
+    width: 100%; padding: 18px; border-radius: 14px; border: none; color: white;
+    font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; margin-top: 10px;
+}
+.btn-neon-blue { background: var(--neon-blue); box-shadow: 0 5px 15px rgba(88,86,214,0.4); }
+.btn-neon-pink { background: var(--neon-pink); box-shadow: 0 5px 15px rgba(255,45,85,0.4); }
+.btn-neon-green { background: #28a745; box-shadow: 0 5px 15px rgba(40,167,69,0.4); }
+.btn-inline { width: auto; padding: 0 20px; margin: 0; } 
+.hidden { display: none !important; }
+
+/* 5. VENTANA FLOTANTE CREATIVA (NO REPUESTOS) */
+#custom-confirm {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+    display: flex; justify-content: center; align-items: center; z-index: 10000;
+}
+.confirm-box {
+    background: #151632; border: 2px solid var(--neon-pink);
+    padding: 30px; border-radius: 20px; max-width: 400px; text-align: center;
+    box-shadow: 0 0 30px rgba(255, 45, 85, 0.4);
+}
+.confirm-box h3 { color: var(--neon-pink); margin-bottom: 15px; font-weight: 900; font-size: 1.3rem; }
+.confirm-box p { font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; color: rgba(255,255,255,0.9); }
+.confirm-btns { display: flex; gap: 15px; }
+
+/* ... (Mantener todo lo anterior y agregar esto) ... */
+
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: 0.3s;
+    opacity: 0.5;
+}
+
+.nav-btn.active {
+    background: var(--neon-blue);
+    box-shadow: 0 0 15px var(--neon-blue);
+    opacity: 1;
+}
+
+.header-split {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+#search-ticket {
+    width: 300px;
+    padding: 10px 20px;
+    font-size: 0.8rem;
+    border-color: var(--neon-blue);
+}
+
+/* Estilo para la X de borrar */
+.delete-ticket {
+    background: rgba(255, 45, 85, 0.2);
+    color: var(--neon-pink);
+    border: 1px solid var(--neon-pink);
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-weight: 900;
+    transition: 0.3s;
+}
+.delete-ticket:hover {
+    background: var(--neon-pink);
+    color: white;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.page-content { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Colores dinámicos para el modal universal */
+.border-pink { border: 2px solid var(--neon-pink) !important; box-shadow: 0 0 25px rgba(255, 45, 85, 0.4); }
+.border-blue { border: 2px solid var(--neon-blue) !important; box-shadow: 0 0 25px rgba(88, 86, 214, 0.4); }
+
+#universal-msg b { color: var(--neon-pink); }
+#universal-title { letter-spacing: 2px; text-transform: uppercase; }
+
+/* ================================
+   MODAL ESTILO MAGIA TECNICA REAL
+================================ */
+
+#modal-magico {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(12px);
+    z-index: 999999;
+}
+
+.modal-caja-magica {
+    display: flex;
+    flex-direction: column;
+    align-items: center;        
+    /* FONDO SINCRONIZADO PERFECTO CON LA PÁGINA */
+    background: radial-gradient(circle at top, #1b1c3d 0%, #0a0b1e 100%); 
+    padding: 45px;
+    border-radius: 30px;
+    max-width: 480px;
+    width: 90%;
+    text-align: center;
+    border: 1px solid rgba(255, 45, 85, 0.5); /* Borde sutil */
+    box-shadow:
+        0 0 25px rgba(255,45,85,0.4),
+        0 0 80px rgba(255,45,85,0.2);
+    animation: aparecerMagia 0.3s ease;
+}
+
+/* Título */
+.modal-caja-magica h2 {
+    color: #ff2d55;
+    font-weight: 900;
+    margin-bottom: 20px;
+    line-height: 1.3;
+    letter-spacing: 1px;
+}
+
+/* Texto */
+.modal-caja-magica p {
+    color: #ddd;
+    margin: 0;
+    max-width: 90%;
+    margin-bottom: 30px;
+    line-height: 1.7;
+}
+
+/* Botones */
+.modal-botones {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap; /* evita que se monten */
+}
+
+.btn-rojo {
+    background: linear-gradient(135deg, #ff2d55, #ff5e7e);
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4);
+    transition: 0.2s;
+    min-width: 140px;
+    padding: 14px 28px;
+}
+
+.btn-rojo:hover {
+    transform: scale(1.05);
+}
+
+.btn-verde {
+    background: linear-gradient(135deg, #28c76f, #48da89);
+    border: none;
+    min-width: 140px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(40, 199, 111, 0.4);
+    transition: 0.2s;
+}
+
+.btn-verde:hover {
+    transform: scale(1.05);
+}
+
+/* Animación */
+@keyframes aparecerMagia {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

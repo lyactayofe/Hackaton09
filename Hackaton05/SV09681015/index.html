@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reparacion de Celulares</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+
+        <h2>🛠️ Sistema de Reparación de Celulares</h2>
+
+        <div class="progress">
+            <div class="step active">Recepción</div>
+            <div class="step">Diagnóstico</div>
+            <div class="step">Autorización</div>
+            <div class="step">Reparación</div>
+            <div class="step">Entrega</div>
+        </div>
+
+        <!-- RECEPCIÓN -->
+        <section id="pantalla-recepcion">
+            <h3>Recepción</h3>
+
+            <div class="form-grid">
+                <div class="campo">
+                    <label>Cliente :</label>
+                    <input type="text" id="cliente" placeholder="Nombre Cliente">
+                </div>
+                <div class="campo">
+                    <label>IMEI:</label>
+                    <input type="text" id="imei" placeholder="IMEI">
+                </div>
+                <div class="campo">
+                    <label>Número de Serie:</label>
+                    <input type="text" id="serie" placeholder="Número de Serie">
+                </div>
+                <div class="campo">
+                    <label>Marca :</label>
+                    <select id="marca">
+                        <option value="">Seleccionar Marca</option>
+                        <option>Samsung</option>
+                        <option>Apple</option>
+                        <option>Xiaomi</option>
+                        <option>Motorola</option>
+                        <option>Huawei</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label>Modelo :</label>
+                    <select id="modelo">
+                        <option value="">Seleccionar Modelo</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label>Sistema Operativo:</label>
+                    <select id="sistema">
+                        <option value="">Sistema Operativo</option>
+                        <option>Android</option>
+                        <option>iOS</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-next" onclick="guardarRecepcion()">Continuar</button>
+            <div id="mensajeSistema" class="mensaje hidden"></div>
+            <hr>
+        </section>
+
+        <!-- DIAGNÓSTICO -->
+        <section id="pantalla-diagnostico" class="hidden">
+            <h3>Diagnóstico</h3>
+
+            <textarea id="diagnostico" placeholder="Descripción"></textarea>
+            <input type="number" id="costo" placeholder="Costo Base">
+
+            <h3>Agregar Repuesto</h3>
+            <input type="text" id="repNombre" placeholder="Nombre repuesto">
+            <input type="number" id="repPrecio" placeholder="Precio">
+            <button type="button" onclick="agregarRepuesto()">Agregar</button>
+            <br>
+
+            <div id="listaRepuestos"></div>
+
+            <p><strong>Total actual:</strong> $<span id="totalDiagnostico">0</span></p>
+
+            <button class="btn-back" onclick="volver()">Atrás</button>
+            <button class="btn-next" onclick="guardarDiagnostico()">Continuar</button>
+            <hr>
+        </section>
+
+        <!-- AUTORIZACIÓN -->
+        <section id="pantalla-autorizacion" class="hidden">
+            <h3>Autorización</h3>
+            <label>
+                <input type="checkbox" id="autorizado"> Autorización escrita
+            </label>
+            <input type="number" id="abono" placeholder="Abono mínimo 50%">
+            <p><strong>Abono mínimo sugerido (50%):</strong> $<span id="abonoMinimo">0</span></p>
+            <button class="btn-back" onclick="volver()">Atrás</button>
+            <button class="btn-next" onclick="guardarAutorizacion()">Continuar</button>
+            <hr>
+        </section>
+
+        <!-- REPARACIÓN -->
+        <section id="pantalla-reparacion" class="hidden">
+            <h3>Reparación</h3>
+            <select id="tecnico">
+                <option value="">Seleccione técnico</option>
+            </select>
+            <button class="btn-back" onclick="volver()">Atrás</button>
+            <button class="btn-next" onclick="guardarReparacion()">Continuar</button>
+            <hr>
+        </section>
+
+        <!-- ENTREGA -->
+        <section id="pantalla-entrega" class="hidden">
+            <h3>Resumen Final</h3>
+            <div id="resumen"></div>
+            <button class="btn-back" onclick="volver()">Atrás</button>
+            <button id="btnFinalizar" class="btn-next" onclick="finalizarProceso()">
+                Finalizar
+            </button>
+            <hr>
+        </section>
+
+        <!-- GESTIÓN DE TÉCNICOS -->
+        <section id="pantalla-tecnicos">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>👨‍🔧 Gestión de Técnicos</h3>
+                <button onclick="toggleTecnicos(event)" class="btn-toggle">Mostrar</button>
+            </div>
+            <div id="panelTecnicos" class="hidden">
+                <div class="form-grid">
+                    <div class="campo">
+                        <label>Nombre:</label>
+                        <input type="text" id="nombreTecnico" placeholder="Nombre del técnico">
+                    </div>
+                    <div class="campo">
+                        <label>ID:</label>
+                        <input type="text" id="idTecnico" placeholder="TEC-001">
+                    </div>
+                    <div class="campo">
+                        <label>Skills:</label>
+                        <select id="skill" multiple>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                            <option value="Huawei">Huawei</option>
+                            <option value="Motorola">Motorola</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-next" onclick="guardarTecnico()">Guardar Técnico</button>
+                <div id="listaTecnicos"></div>
+            </div>
+            <hr>
+        </section>
+
+        <h3>📋 Reparaciones Registradas</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span><strong>Equipos activos:</strong> <span id="contadorActivos">0</span></span>
+            <button id="btnToggleTabla" onclick="toggleTabla()" class="btn-toggle">Mostrar</button>
+        </div>
+
+        <div id="contenedorTabla" class="hidden">
+            <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;">
+                <input type="text" id="buscarCliente" placeholder="Buscar por cliente">
+                <select id="filtroEstado">
+                    <option value="">Todos los estados</option>
+                    <option value="En reparación">En reparación</option>
+                    <option value="Reparado">Reparado</option>
+                    <option value="Entregado">Entregado</option>
+                </select>
+            </div>
+            <div class="tabla-wrapper">
+                <div id="tablaReparaciones"></div>
+            </div>
+        </div>
+
+        <div id="detalleReparacion" class="hidden"></div>
+    </div>
+    <div id="modalConfirmacion" class="modal hidden">
+        <div class="modal-content">
+            <p>¿Desea eliminar este registro?</p>
+            <div class="modal-buttons">
+                <button class="btn-next" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-next" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+    <div class="divider"></div>
+
+    <footer style="text-align:center; margin-top:40px; opacity:.6;">
+        Desarrollado por Richard Asto • 2026
+    </footer>
+
+    <script src="js/interfaz.js"></script>
+    <script src="js/modelos.js"></script>
+</body>
+</html>

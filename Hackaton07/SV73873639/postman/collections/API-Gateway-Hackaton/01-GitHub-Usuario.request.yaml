@@ -1,0 +1,35 @@
+$kind: http-request
+name: '01 - Consultar datos de GitHub de un usuario'
+method: GET
+url: 'https://api.github.com/users/{{github_username}}'
+description: 'Consulta los datos públicos de un usuario de GitHub. Cambia la variable github_username para consultar otro usuario.'
+order: 1000
+headers:
+  - key: Accept
+    value: 'application/vnd.github.v3+json'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      // Test 1: Verificar que la respuesta sea exitosa
+      pm.test("Status 200 - Respuesta exitosa", function () {
+          pm.response.to.have.status(200);
+      });
+
+      // Test 2: Verificar que el usuario existe
+      pm.test("El usuario tiene login", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.login).to.exist;
+      });
+
+      // Test 3: Verificar campos importantes
+      pm.test("Tiene nombre y repositorios", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.public_repos).to.be.a("number");
+      });
+
+      // Mostrar datos en consola
+      var data = pm.response.json();
+      console.log("Usuario:", data.login);
+      console.log("Nombre:", data.name);
+      console.log("Repos públicos:", data.public_repos);

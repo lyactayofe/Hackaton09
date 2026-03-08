@@ -1,0 +1,617 @@
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #eef2f3, #dfe9f3);
+    margin: 0;
+    padding: 20px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 990px;
+    margin: 40px auto;
+    background: #78a185;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    /*overflow-x: hidden;*/
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-size: 0.8em;
+    margin-bottom: 1px;
+    color: #70332e;
+}
+
+.hidden {
+    display: none;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #dcdcdc;
+    transition: 0.2s;
+    box-sizing: border-box;
+    display: block;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #27ae60;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.15);
+}
+
+
+button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75em;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.btn-rep {
+    background: #08411b;
+    color: white;
+}
+
+.btn-ent {
+    background: #08411b;
+    color: white;
+}
+
+.btn-del {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-next {
+    background: #08411b;
+    color: white;
+}
+
+.btn-back {
+    background: #0f7732;
+    color: white;
+    margin-right: 10px;
+}
+
+.progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.step {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 3px solid #ddd;
+    font-size: .85em;
+    transition: 0.3s;
+}
+
+.step.active {
+    border-color: #27ae60;
+    font-weight: bold;
+    color: #27ae60;
+    background: #ecf9f1;
+    border-radius: 6px 6px 0 0;
+}
+
+.step.completed {
+    border-color: #27ae60;
+    color: #27ae60;
+}
+
+.tabla-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.repuesto-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #89b69c;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: .85em;
+    position: relative;
+    min-height: 28px;
+}
+
+.lista-repuestos {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.repuesto-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.repuesto-info {
+    display: flex;
+    gap: 6px;
+}
+
+.repuesto-nombre {
+    font-weight: 500;
+    flex: 1;
+    text-align: left;
+    line-height: 1.2;
+}
+
+.repuesto-precio {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 600;
+    color: #1f7a3a;
+    font-size: 0.85rem;
+}
+
+.btn-eliminar {
+    margin-left: auto;
+    background: #ffe5e5;
+    border: none;
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    font-size: 0.8rem;
+    line-height: 1;
+}
+
+.btn-eliminar:hover {
+    background: #ffcccc;
+}
+
+.btn-eliminar:active {
+    transform: scale(0.95);
+}
+
+.estado-reparacion {
+    background: #ffe08a;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.estado-reparado {
+    background: #a0c4ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.estado-entregado {
+    background: #b9fbc0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.status-eli {
+    background: #ff0000;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: .75em;
+}
+
+/* ============================= */
+/* TABLA PROFESIONAL */
+/* ============================= */
+
+.tabla-reparaciones {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tabla-reparaciones th {
+    background: #08411b;
+    color: white;
+    text-align: left;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.tabla-reparaciones td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.tabla-reparaciones tr:hover {
+    background: #f9fafb;
+    transition: 0.2s ease;
+}
+
+.tabla-reparaciones button {
+    padding: 5px 6px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    margin-right: 5px;
+}
+
+.tabla-reparaciones button:hover {
+    opacity: 0.8;
+}
+
+.mensaje {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.mensaje-error {
+    background: #ffe5e5;
+    border: 2px solid red;
+    color: #900;
+}
+
+.mensaje-exito {
+    background: #e6ffed;
+    border: 2px solid #2ecc71;
+    color: #065f46;
+}
+
+.divider {
+    max-width: 1200px;
+    height: 2px;
+    margin: 20px auto;
+    background: linear-gradient(to right,
+            transparent,
+            #08411b,
+            transparent);
+    opacity: 1;
+}
+
+.btn-toggle {
+    background: #08411b;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.btn-toggle:hover {
+    background: #08411b;
+}
+
+.dashboard-card {
+    background: red;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-top: 0;
+}
+
+button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.hidden {
+    display: none;
+
+}
+
+/* ===== DETALLE RESUMEN===== */
+.detalle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.detalle-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #111827;
+}
+
+/* ===== GRID INFO ===== */
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.detalle-grid p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+/* ===== RECUADRO TOTAL ===== */
+.detalle-total {
+    background: #173f8f;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+/* ===== BOTON CERRAR ===== */
+.btn-cerrar {
+    background: #111827;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-cerrar:hover {
+    opacity: 0.85;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+.modal-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #111;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* ===== ANIMACION ===== */
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== UTILIDAD ===== */
+.hidden {
+    display: none;
+}
+
+/* ===== LISTA DE TECNICOS ===== */
+#listaTecnicos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.card-tecnico {
+    background: #588a6d;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #5a3e2b;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease;
+}
+
+.card-tecnico:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.card-body p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.skills-container {
+    margin-top: 8px;
+}
+
+.skill-badge {
+    display: inline-block;
+    background: #08411b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin: 2px;
+}
+
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        margin: 20px auto;
+        padding: 18px;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .progress {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .step {
+        border-bottom: none;
+        border-left: 4px solid #ddd;
+        text-align: left;
+        padding: 8px 10px;
+    }
+
+    .step.active {
+        border-left: 4px solid #27ae60;
+        border-radius: 6px;
+    }
+
+}
+
+
+
+@media (max-width: 768px) {
+    button {
+        width: 100%;
+        margin-top: 6px;
+        font-size: 0.9em;
+        padding: 10px;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .repuesto-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    input,
+    select,
+    textarea {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .tabla-reparaciones thead {
+        display: none;
+    }
+
+    .tabla-reparaciones tr {
+        margin-bottom: 15px;
+        background: white;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 12px;
+
+    }
+
+    .tabla-reparaciones td {
+        border: none;
+        padding: 8px 0;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .detalle-grid {
+        grid-template-columns: 1fr 1fr;
+        font-size: 12px;
+        margin: 0;
+    }
+}

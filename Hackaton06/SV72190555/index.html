@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RepairOS — H6 Clases, Objetos y WebStorage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: "Syne", sans-serif; }
+    code, .mono { font-family: "JetBrains Mono", monospace; }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .step-panel { animation: fadeSlide 0.3s ease; }
+    input:focus, textarea:focus, select:focus { outline: none; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9px; }
+    .badge-INGRESADO    { background:#1e3a5f; color:#93c5fd; border-color:#3b82f6; }
+    .badge-DIAGNOSTICADO{ background:#3b1f00; color:#fcd34d; border-color:#f59e0b; }
+    .badge-AUTORIZADO   { background:#14532d; color:#86efac; border-color:#22c55e; }
+    .badge-EN_REPARACION{ background:#4c1d95; color:#c4b5fd; border-color:#7c3aed; }
+    .badge-ENTREGADO    { background:#1c1c1c; color:#a1a1aa; border-color:#52525b; }
+    .badge-CANCELADO    { background:#450a0a; color:#fca5a5; border-color:#ef4444; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 h-screen overflow-hidden flex flex-col">
+
+  <header class="border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">📠</span>
+      <div>
+        <h1 class="text-xl font-extrabold tracking-tight leading-none">RepairOS</h1>
+        <p id="headerLocal" class="text-zinc-500 text-xs">Sin local seleccionado</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button type="button" onclick="abrirModalTecnicos()" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-xs px-3 py-2 rounded-xl transition font-bold">⚙️ Técnicos</button>
+      <button type="button" onclick="abrirModalLocales()" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-xs px-3 py-2 rounded-xl transition font-bold">🏢 Locales</button>
+      <button type="button" onclick="toggleSupervisor()" class="bg-indigo-700 hover:bg-indigo-600 border border-indigo-500 text-white text-xs px-3 py-2 rounded-xl transition font-bold">👁 Supervisor</button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
+    <aside class="w-60 border-r border-zinc-800 p-4 flex flex-col shrink-0">
+      <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-3">Flujo de reparación</p>
+      <div id="stepper" class="flex flex-col gap-1.5 mb-4"></div>
+      <div class="mt-auto bg-zinc-900 border border-zinc-800 rounded-xl p-3">
+        <p class="text-xs text-zinc-500 mb-1">Equipo en flujo</p>
+        <p id="telActivoNombre" class="text-sm font-bold text-white leading-tight truncate">—</p>
+        <p id="telActivoSerie" class="mono text-xs text-zinc-400 mt-0.5">—</p>
+        <span id="telActivoEstado" class="inline-block mt-2 px-2 py-0.5 rounded-full border text-xs font-bold"></span>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8">
+      <div id="stepContent"></div>
+    </main>
+  </div>
+
+  <!-- PANEL SUPERVISOR -->
+  <div id="supervisorPanel" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto p-8">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-3xl font-extrabold">Panel Supervisor</h2>
+          <p class="text-zinc-400 text-sm mt-1">Vista general de todas las reparaciones</p>
+        </div>
+        <button onclick="toggleSupervisor()" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 px-4 py-2 rounded-xl text-sm transition">✕ Cerrar</button>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mb-8">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+          <p class="text-xs text-zinc-500 mb-1">Total equipos</p>
+          <p id="sv_totalEquipos" class="text-3xl font-extrabold text-white">0</p>
+        </div>
+        <div class="bg-emerald-950/50 border border-emerald-800/40 rounded-2xl p-5">
+          <p class="text-xs text-emerald-400 mb-1">💰 Dinero en caja</p>
+          <p id="sv_enCaja" class="text-3xl font-extrabold text-emerald-400">S/ 0</p>
+        </div>
+        <div class="bg-amber-950/50 border border-amber-800/40 rounded-2xl p-5">
+          <p class="text-xs text-amber-400 mb-1">⏳ Por cobrar</p>
+          <p id="sv_porCobrar" class="text-3xl font-extrabold text-amber-400">S/ 0</p>
+        </div>
+        <div class="bg-blue-950/50 border border-blue-800/40 rounded-2xl p-5">
+          <p class="text-xs text-blue-400 mb-1">📊 Total proyectado</p>
+          <p id="sv_totalProyectado" class="text-3xl font-extrabold text-blue-400">S/ 0</p>
+        </div>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+        <div class="p-4 border-b border-zinc-800 flex items-center justify-between">
+          <p class="font-bold text-sm">Listado de equipos</p>
+          <input id="sv_buscar" oninput="renderSupervisor()" type="text" placeholder="Buscar por serie, marca, propietario..."
+            class="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 w-64"/>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-zinc-800 text-zinc-500 text-xs uppercase tracking-wider">
+                <th class="text-left px-4 py-3">Equipo</th>
+                <th class="text-left px-4 py-3">Propietario</th>
+                <th class="text-left px-4 py-3">Local</th>
+                <th class="text-left px-4 py-3">Técnico</th>
+                <th class="text-left px-4 py-3">Estado</th>
+                <th class="text-right px-4 py-3">Costo total</th>
+                <th class="text-right px-4 py-3">En caja</th>
+                <th class="text-right px-4 py-3">Por cobrar</th>
+                <th class="text-center px-4 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="sv_tabla"></tbody>
+          </table>
+          <p id="sv_vacio" class="text-center text-zinc-600 py-12 text-sm hidden">No hay equipos registrados aún.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TÉCNICOS -->
+  <div id="modalTecnicos" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md p-6">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="font-extrabold text-lg">Gestión de Técnicos</h3>
+        <button onclick="cerrarModal('modalTecnicos')" class="text-zinc-500 hover:text-white text-xl leading-none">✕</button>
+      </div>
+      <div class="space-y-2 mb-5">
+        <div class="flex gap-2">
+          <input id="mt_nombre" type="text" placeholder="Nombre del técnico"
+            class="flex-1 bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 transition"/>
+          <input id="mt_skills" type="text" placeholder="Skills: apple, samsung..."
+            class="flex-1 bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 transition"/>
+        </div>
+        <button onclick="agregarTecnico()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-sm font-bold transition">+ Agregar Técnico</button>
+      </div>
+      <div id="mt_lista" class="space-y-2 max-h-60 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- MODAL LOCALES -->
+  <div id="modalLocales" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md p-6">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="font-extrabold text-lg">Gestión de Locales</h3>
+        <button onclick="cerrarModal('modalLocales')" class="text-zinc-500 hover:text-white text-xl leading-none">✕</button>
+      </div>
+      <div class="space-y-2 mb-5">
+        <div class="flex gap-2">
+          <input id="ml_nombre" type="text" placeholder="Nombre del local / sucursal"
+            class="flex-1 bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 transition"/>
+          <input id="ml_direccion" type="text" placeholder="Dirección"
+            class="flex-1 bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 transition"/>
+        </div>
+        <button onclick="agregarLocal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-sm font-bold transition">+ Agregar Local</button>
+      </div>
+      <div id="ml_lista" class="space-y-2 max-h-60 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR REGISTRO -->
+  <div id="modalEditar" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 class="font-extrabold text-lg">Editar Registro</h3>
+          <p class="text-zinc-500 text-xs mt-0.5">Modifica los datos del equipo</p>
+        </div>
+        <button onclick="cerrarModal('modalEditar')" class="text-zinc-500 hover:text-white text-xl leading-none">✕</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">Marca</label>
+          <select id="ed_marca" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition"></select>
+        </div>
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">Modelo</label>
+          <input id="ed_modelo" type="text" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition"/>
+        </div>
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">Propietario</label>
+          <input id="ed_prop" type="text" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition"/>
+        </div>
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">IMEI</label>
+          <input id="ed_imei" type="text" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition"/>
+        </div>
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">Técnico asignado</label>
+          <select id="ed_tecnico" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition"></select>
+        </div>
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">Abono recibido (S/)</label>
+          <input id="ed_abono" type="number" min="0" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition"/>
+        </div>
+        <div class="col-span-2">
+          <label class="text-xs text-zinc-400 mb-1 block">Diagnóstico / descripción</label>
+          <textarea id="ed_diagnostico" rows="2" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition resize-none"></textarea>
+        </div>
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">Costo estimado (S/)</label>
+          <input id="ed_costo" type="number" min="0" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition"/>
+        </div>
+        <div>
+          <label class="text-xs text-zinc-400 mb-1 block">Estado</label>
+          <select id="ed_estado" class="w-full bg-zinc-800 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-white transition">
+            <option>INGRESADO</option>
+            <option>DIAGNOSTICADO</option>
+            <option>AUTORIZADO</option>
+            <option>EN_REPARACION</option>
+            <option>ENTREGADO</option>
+            <option>CANCELADO</option>
+          </select>
+        </div>
+      </div>
+      <input type="hidden" id="ed_serie"/>
+      <div class="flex justify-end gap-2">
+        <button onclick="cerrarModal('modalEditar')" class="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded-xl text-sm transition">Cancelar</button>
+        <button onclick="guardarEdicion()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-5 py-2 rounded-xl text-sm transition">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 text-sm px-4 py-3 rounded-xl shadow-xl max-w-xs border"></div>
+<footer class="border-t border-zinc-800 bg-zinc-950/50 backdrop-blur-sm px-8 py-3">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-2">
+            <span class="text-blue-500 text-xl">🛠️</span>
+            <p class="text-zinc-500 text-xs tracking-widest uppercase font-bold">
+                Hackathon Semanal 05 — Gestión de Reparaciones
+            </p>
+        </div>
+        
+        <p class="text-zinc-400 text-sm italic">
+            Desarrollado por 
+            <span class="text-white font-extrabold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent ml-1">
+                Javier Gonzales
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+  <script>
+
+
+    // ---------------------------------------------------------------------------
+    // CLASES
+    // Defino cada entidad del sistema como una clase ES6.
+    // Cada clase representa una cosa del mundo real del taller.
+    // ---------------------------------------------------------------------------
+
+    // Telefono es la clase principal del sistema.
+    // Cada equipo que entra al taller se convierte en una instancia de esta clase.
+    class Telefono {
+      constructor(serie, imei, marca, modelo, propietario, local) {
+        this.serie        = serie;
+        this.imei         = imei;
+        this.marca        = marca;
+        this.modelo       = modelo;
+        this.propietario  = propietario;
+        this.local        = local;         // sucursal donde se registro
+        this.diagnostico  = null;          // se llena en el paso 2
+        this.autorizado   = false;         // pasa a true cuando el cliente firma
+        this.abono        = 0;             // monto adelantado por el cliente
+        this.tecnico      = null;          // nombre del tecnico asignado
+        this.repuestos    = [];            // piezas usadas en la reparacion
+        this.estado       = "INGRESADO";
+        this.fechaIngreso = new Date().toLocaleDateString("es-PE");
+      }
+
+      // Suma el costo del diagnostico mas el precio de todos los repuestos.
+      costoTotal() {
+        return this.repuestos.reduce((acc, r) => acc + r.precio, 0) +
+               (this.diagnostico ? this.diagnostico.costoEstimado : 0);
+      }
+
+      // Si el abono fue mayor al costo devuelve 0, nunca un numero negativo.
+      saldoPendiente() {
+        return Math.max(0, this.costoTotal() - this.abono);
+      }
+
+      // Texto corto para mostrar en la interfaz.
+      resumen() {
+        return `${this.marca} ${this.modelo} · ${this.propietario}`;
+      }
+    }
+
+    // Guarda la descripcion del problema y el costo estimado de la reparacion.
+    class Diagnostico {
+      constructor(descripcion, costoEstimado) {
+        this.descripcion   = descripcion;
+        this.costoEstimado = Number(costoEstimado);
+        this.fecha         = new Date().toLocaleDateString("es-PE");
+      }
+    }
+
+    // Un tecnico tiene nombre y una lista de marcas que sabe reparar.
+    class Tecnico {
+      constructor(nombre, skills = []) {
+        this.nombre = nombre;
+        // Acepto skills como array o como string separado por comas.
+        this.skills = Array.isArray(skills)
+          ? skills
+          : skills.split(",").map(s => s.trim()).filter(Boolean);
+      }
+
+      // Comparo en minusculas para evitar problemas con mayusculas.
+      puedeAtender(marca) {
+        return this.skills.map(s => s.toLowerCase()).includes(marca.toLowerCase());
+      }
+    }
+
+    // Un repuesto es una pieza con nombre y precio.
+    class Repuesto {
+      constructor(nombre, precio) {
+        this.nombre = nombre;
+        this.precio = Number(precio);
+      }
+    }
+
+    // Representa una sucursal del negocio.
+    class Local {
+      constructor(nombre, direccion) {
+        this.nombre    = nombre;
+        this.direccion = direccion;
+      }
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // SISTEMA PRINCIPAL
+    // Esta clase coordina todo. Tiene los datos y las reglas de negocio.
+    // ---------------------------------------------------------------------------
+
+    class SistemaReparacion {
+      constructor() {
+        // Uso Map para guardar telefonos porque me permite buscar por serie
+        // de forma rapida con .get(serie) sin tener que recorrer un array.
+        this.telefonos  = new Map();
+
+        // Uso Set para la lista negra porque no permite duplicados
+        // y .has() es mas rapido que buscar en un array.
+        this.bloqueados = {
+          series: new Set(["123123123", "SERIE-BLOQUEADA"]),
+          imeis:  new Set(["ASDJKHASDKJ", "IMEI-BLOQUEADO"])
+        };
+
+        this.tecnicos    = [];
+        this.locales     = [];
+        this.localActivo = null;
+
+        // Intentamos cargar desde localStorage. Si no hay nada carga los defaults.
+        this._cargarStorage();
+      }
+
+
+      // ---------------------------------------------------------------------------
+      // PERSISTENCIA EN localStorage
+      // Guarda y restaura el estado completo al cerrar y abrir el navegador.
+      // ---------------------------------------------------------------------------
+
+      // Convierte el estado actual a JSON y lo guarda en localStorage.
+      // Se llama cada vez que algo cambia en el sistema.
+      _guardarStorage() {
+        localStorage.setItem("repairOS_data", JSON.stringify({
+          telefonos:   Array.from(this.telefonos.values()).map(t => t.toJSON()),
+          tecnicos:    this.tecnicos,
+          locales:     this.locales,
+          localActivo: this.localActivo
+        }));
+      }
+
+      // Lee el JSON guardado y reconstruye los objetos con sus clases.
+      // Si no hay nada guardado o hay un error carga los datos por defecto.
+      _cargarStorage() {
+        try {
+          const raw = localStorage.getItem("repairOS_data");
+          if (!raw) { this._defaults(); return; }
+          const data = JSON.parse(raw);
+          (data.telefonos || []).forEach(t => this.telefonos.set(t.serie, Telefono.fromJSON(t)));
+          this.tecnicos    = (data.tecnicos || []).map(t => new Tecnico(t.nombre, t.skills));
+          this.locales     = (data.locales  || []).map(l => new Local(l.nombre, l.direccion));
+          this.localActivo = data.localActivo || null;
+          if (!this.tecnicos.length) this._defaultTecnicos();
+          if (!this.locales.length)  this._defaultLocales();
+        } catch { this._defaults(); }
+      }
+
+
+      // Carga tecnicos y locales iniciales.
+      _defaults() {
+        this._defaultTecnicos();
+        this._defaultLocales();
+      }
+
+      _defaultTecnicos() {
+        this.tecnicos = [
+          new Tecnico("Carlos Pérez",  ["samsung", "huawei"]),
+          new Tecnico("Marta García",  ["huawei", "xiaomi"]),
+          new Tecnico("Juan Quispe",   ["apple"]),
+          new Tecnico("Rosa Mendoza",  ["samsung", "apple", "motorola"])
+        ];
+      }
+
+      _defaultLocales() {
+        this.locales     = [
+          new Local("Sede Central",  "Av. Arequipa 1234"),
+          new Local("Sucursal Norte","Av. Túpac Amaru 567")
+        ];
+        this.localActivo = "Sede Central";
+      }
+
+      // Revisa si la serie o IMEI estan bloqueados antes de registrar.
+      estaEnListaNegra(serie, imei) {
+        if (this.bloqueados.series.has(serie))
+          return { bloqueado: true, motivo: `Serie ${serie} está en lista negra.` };
+        if (this.bloqueados.imeis.has(imei))
+          return { bloqueado: true, motivo: `IMEI ${imei} está en lista negra.` };
+        return { bloqueado: false };
+      }
+
+      // Paso 1: valida los datos y registra el telefono en el Map.
+      // Uso throw new Error para que la UI pueda capturar el mensaje con try/catch.
+      registrarTelefono(serie, imei, marca, modelo, propietario) {
+        if (!serie || !imei || !marca || !modelo || !propietario)
+          throw new Error("Todos los campos son obligatorios.");
+        const chk = this.estaEnListaNegra(serie, imei);
+        if (chk.bloqueado) throw new Error(chk.motivo);
+        if (this.telefonos.has(serie))
+          throw new Error(`La serie ${serie} ya está registrada.`);
+        const tel = new Telefono(serie, imei, marca, modelo, propietario, this.localActivo || "Sin local");
+        this.telefonos.set(serie, tel);
+        this._guardarStorage();
+        return tel;
+      }
+
+      // Paso 2: crea el diagnostico y cambia el estado.
+      agregarDiagnostico(serie, descripcion, costo) {
+        const tel = this._getTel(serie);
+        if (!descripcion || !costo) throw new Error("Completa descripción y costo.");
+        tel.diagnostico = new Diagnostico(descripcion, costo);
+        tel.estado      = "DIAGNOSTICADO";
+        this._guardarStorage();
+        return tel;
+      }
+
+      // Paso 3: verifica que el abono sea al menos el 50% del costo estimado.
+      autorizar(serie, abono) {
+        const tel = this._getTel(serie);
+        if (!tel.diagnostico) throw new Error("El equipo aún no tiene diagnóstico.");
+        const min = tel.diagnostico.costoEstimado * 0.5;
+        if (Number(abono) < min)
+          throw new Error(`Abono mínimo requerido: S/ ${min.toFixed(2)}`);
+        tel.autorizado = true;
+        tel.abono      = Number(abono);
+        tel.estado     = "AUTORIZADO";
+        this._guardarStorage();
+        return tel;
+      }
+
+      // Paso 4: asigna el tecnico si tiene el skill para la marca.
+      asignarTecnico(serie, nombreTecnico) {
+        const tel = this._getTel(serie);
+        if (!tel.autorizado) throw new Error("El equipo no ha sido autorizado.");
+        const tec = this.tecnicos.find(t => t.nombre === nombreTecnico);
+        if (!tec) throw new Error("Técnico no encontrado.");
+        if (!tec.puedeAtender(tel.marca))
+          throw new Error(`${nombreTecnico} no tiene skill para ${tel.marca}.`);
+        tel.tecnico = nombreTecnico;
+        tel.estado  = "EN_REPARACION";
+        this._guardarStorage();
+        return tel;
+      }
+
+      // Paso 5: agrega una pieza al array de repuestos del telefono.
+      agregarRepuesto(serie, nombre, precio) {
+        const tel = this._getTel(serie);
+        if (!nombre || !precio) throw new Error("Nombre y precio son obligatorios.");
+        tel.repuestos.push(new Repuesto(nombre, precio));
+        this._guardarStorage();
+        return tel;
+      }
+
+      // Cambia el estado manualmente desde el paso 6.
+      cambiarEstado(serie, estado) {
+        const tel = this._getTel(serie);
+        tel.estado = estado;
+        this._guardarStorage();
+        return tel;
+      }
+
+      // Agrega un tecnico al sistema desde el modal de gestion.
+      agregarTecnicoSistema(nombre, skills) {
+        if (!nombre) throw new Error("El nombre es obligatorio.");
+        if (this.tecnicos.find(t => t.nombre.toLowerCase() === nombre.toLowerCase()))
+          throw new Error("Ya existe ese técnico.");
+        const tec = new Tecnico(nombre, skills);
+        this.tecnicos.push(tec);
+        this._guardarStorage();
+        return tec;
+      }
+
+      // Agrega una sucursal nueva.
+      agregarLocal(nombre, direccion) {
+        if (!nombre) throw new Error("El nombre del local es obligatorio.");
+        if (this.locales.find(l => l.nombre.toLowerCase() === nombre.toLowerCase()))
+          throw new Error("Ya existe ese local.");
+        const loc = new Local(nombre, direccion);
+        this.locales.push(loc);
+        this._guardarStorage();
+        return loc;
+      }
+
+      // Cambia la sucursal activa.
+      seleccionarLocal(nombre) {
+        if (!this.locales.find(l => l.nombre === nombre))
+          throw new Error("Local no encontrado.");
+        this.localActivo = nombre;
+        this._guardarStorage();
+      }
+
+      // Calcula totales para las tarjetas del panel supervisor.
+      resumenCaja() {
+        let enCaja = 0, porCobrar = 0, totalProyectado = 0;
+        this.telefonos.forEach(t => {
+          totalProyectado += t.costoTotal();
+          enCaja          += t.abono;
+          porCobrar       += t.saldoPendiente();
+        });
+        return { enCaja, porCobrar, totalProyectado, total: this.telefonos.size };
+      }
+
+      // Metodo interno reutilizado por todos los metodos del flujo.
+      // Evita repetir el mismo bloque if en cada metodo.
+      _getTel(serie) {
+        const tel = this.telefonos.get(serie);
+        if (!tel) throw new Error("Teléfono no encontrado.");
+        return tel;
+      }
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // ESTADO GLOBAL
+    // Variables que controlan en que paso esta el usuario y que equipo esta activo.
+    // ---------------------------------------------------------------------------
+
+    const sistema    = new SistemaReparacion();
+    let currentStep  = 0;      // numero del paso activo en el stepper
+    let currentSerie = null;   // serie del equipo que esta en flujo ahora mismo
+
+    // Definicion de los pasos para el stepper lateral.
+    const STEPS = [
+      { label: "Inicio",       icon: "🏠" },
+      { label: "Registrar",    icon: "📱" },
+      { label: "Diagnóstico",  icon: "🔍" },
+      { label: "Autorización", icon: "✅" },
+      { label: "Técnico",      icon: "🔧" },
+      { label: "Repuestos",    icon: "🔩" },
+      { label: "Estado final", icon: "📋" }
+    ];
+
+
+    // ---------------------------------------------------------------------------
+    // UTILIDADES
+    // Funciones pequeñas reutilizadas en toda la app.
+    // ---------------------------------------------------------------------------
+
+    // Lee el valor de un input por su id y elimina espacios al inicio y final.
+    function v(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : "";
+    }
+
+    // Muestra una notificacion que desaparece sola a los 3.5 segundos.
+    // El tipo puede ser "ok", "error" o cualquier otro valor para el estilo gris.
+    function toast(msg, tipo = "ok") {
+      const el = document.getElementById("toast");
+      el.className = `fixed bottom-6 right-6 z-50 text-sm px-4 py-3 rounded-xl shadow-xl max-w-xs border ${
+        tipo === "ok"    ? "bg-emerald-900 border-emerald-700 text-emerald-200" :
+        tipo === "error" ? "bg-red-950 border-red-700 text-red-300" :
+                           "bg-zinc-800 border-zinc-700 text-white"}`;
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.add("hidden"), 3500);
+    }
+
+    // Devuelve la clase CSS del badge segun el estado del equipo.
+    function badgeClass(estado) {
+      return `badge-${estado}`;
+    }
+
+    // Actualiza la tarjeta del equipo activo en el sidebar.
+    function actualizarSidebar(tel) {
+      if (!tel) return;
+      document.getElementById("telActivoNombre").textContent = tel.resumen();
+      document.getElementById("telActivoSerie").textContent  = `Serie: ${tel.serie}`;
+      const b = document.getElementById("telActivoEstado");
+      b.textContent = tel.estado;
+      b.className   = `inline-block mt-2 px-2 py-0.5 rounded-full border text-xs font-bold ${badgeClass(tel.estado)}`;
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // NAVEGACION
+    // Controla el stepper y el cambio entre pasos.
+    // ---------------------------------------------------------------------------
+
+    // Dibuja los botones del stepper. Se llama cada vez que cambia el paso activo.
+    function renderStepper() {
+      const c = document.getElementById("stepper");
+      c.innerHTML = "";
+      STEPS.forEach((s, i) => {
+        const btn = document.createElement("button");
+        // Solo se puede saltar a un paso si ya hay un equipo registrado,
+        // excepto el paso 0 que siempre esta disponible.
+        btn.onclick = () => {
+          if (i === 0 || currentSerie) goStep(i);
+          else toast("Registra un equipo primero.", "warn");
+        };
+        btn.className = `flex items-center gap-2 px-3 py-2 rounded-xl text-left text-xs font-bold transition w-full ${
+          i === currentStep ? "bg-indigo-600 text-white" :
+          i  < currentStep  ? "bg-zinc-800 text-zinc-300" :
+                               "text-zinc-500 hover:bg-zinc-800/50"}`;
+        btn.innerHTML = `<span>${s.icon}</span><span>${s.label}</span>`;
+        c.appendChild(btn);
+      });
+    }
+
+    // Cambia al paso n, actualiza el stepper y renderiza el contenido del paso.
+    // Uso un array de funciones indexado por numero de paso para evitar un switch.
+    function goStep(n) {
+      currentStep = n;
+      renderStepper();
+      const c = document.getElementById("stepContent");
+      c.innerHTML = "";
+      [renderStep0,renderStep1,renderStep2,renderStep3,renderStep4,renderStep5,renderStep6][n]?.(c);
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // RENDERIZADO DE PASOS
+    // Cada funcion renderStepN construye el HTML del formulario correspondiente.
+    // ---------------------------------------------------------------------------
+
+    // Paso 0: pantalla de bienvenida.
+    function renderStep0(c) {
+      c.innerHTML = `
+        <div class="max-w-lg mx-auto pt-3 step-panel">
+          <div class="text-4xl mb-2">📠</div>
+          <h2 class="text-2xl font-extrabold mb-1">Bienvenido a RepairOS</h2>
+          <p class="text-zinc-400 mb-3 leading-relaxed text-sm">Sistema de gestión de reparaciones. Sigue el flujo paso a paso para cada equipo.</p>
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            ${STEPS.slice(1).map((s,i)=>`
+              <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
+                <div class="text-xl mb-0.5">${s.icon}</div>
+                <p class="text-xs text-zinc-400 font-bold">${i+1}. ${s.label}</p>
+              </div>`).join("")}
+          </div>
+          <button onclick="goStep(1)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-6 py-2.5 rounded-xl transition text-sm mt-1">
+            Nueva reparación →
+          </button>
+        </div>`;
+    }
+
+    // Paso 1: formulario de registro.
+    // Muestro la lista negra para que el recepcionista pueda verificar antes de enviar.
+    function renderStep1(c) {
+      const MARCAS = ["Apple","Samsung","Huawei","Xiaomi","Motorola","LG","Sony","OnePlus","Oppo","Vivo","Realme","Nokia","Asus","ZTE","Tecno"];
+      c.innerHTML = `
+        <div class="max-w-md mx-auto step-panel">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="bg-blue-600 text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">1</span>
+            <div>
+              <h2 class="text-xl font-extrabold">Registrar Teléfono</h2>
+              <p class="text-zinc-500 text-xs">Validar serie e IMEI contra lista negra</p>
+            </div>
+          </div>
+          <div class="bg-red-950/40 border border-red-800/30 rounded-xl p-3 mb-5 text-xs text-red-400">
+            <strong>Lista negra —</strong> Series: <code>${[...sistema.bloqueados.series].join(", ")}</code>
+            · IMEIs: <code>${[...sistema.bloqueados.imeis].join(", ")}</code>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-zinc-400 mb-1 block">Número de Serie *</label>
+              <input id="s1_serie" type="text" placeholder="SN12345678" class="w-full bg-zinc-900 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 mb-1 block">IMEI *</label>
+              <input id="s1_imei" type="text" placeholder="IMEI12345678" class="w-full bg-zinc-900 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 mb-1 block">Marca *</label>
+              <select id="s1_marca" class="w-full bg-zinc-900 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2.5 text-sm text-white transition">
+                <option value="">— Seleccionar marca —</option>
+                ${MARCAS.map(m => `<option value="${m}">${m}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 mb-1 block">Modelo *</label>
+              <input id="s1_modelo" type="text" placeholder="Galaxy S21..." class="w-full bg-zinc-900 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            </div>
+            <div class="col-span-2">
+              <label class="text-xs text-zinc-400 mb-1 block">Propietario *</label>
+              <input id="s1_prop" type="text" placeholder="Juan Pérez" class="w-full bg-zinc-900 border border-zinc-700 focus:border-blue-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            </div>
+          </div>
+          <div class="flex justify-end mt-5">
+            <button onclick="step1Action()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">Registrar y Continuar →</button>
+          </div>
+        </div>`;
+    }
+
+    // Paso 2: diagnostico del equipo.
+    // Si ya habia un diagnostico previo lo muestro y pre-lleno el formulario.
+    function renderStep2(c) {
+      const tel = sistema.telefonos.get(currentSerie);
+      c.innerHTML = `
+        <div class="max-w-md mx-auto step-panel">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="bg-amber-600 text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">2</span>
+            <div><h2 class="text-xl font-extrabold">Diagnóstico</h2><p class="text-zinc-500 text-xs">${tel?.resumen()||""}</p></div>
+          </div>
+          ${tel?.diagnostico ? `<div class="bg-amber-950/30 border border-amber-800/30 rounded-xl p-3 mb-4 text-xs text-amber-400"><strong>✓ Diagnóstico registrado:</strong> ${tel.diagnostico.descripcion} — S/ ${tel.diagnostico.costoEstimado}</div>` : ""}
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-zinc-400 mb-1 block">Descripción *</label>
+              <textarea id="s2_desc" rows="4" placeholder="Pantalla rota, batería defectuosa..." class="w-full bg-zinc-900 border border-zinc-700 focus:border-amber-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition resize-none">${tel?.diagnostico?.descripcion||""}</textarea>
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 mb-1 block">Costo estimado (S/) *</label>
+              <input id="s2_costo" type="number" min="0" placeholder="250" value="${tel?.diagnostico?.costoEstimado||""}" class="w-full bg-zinc-900 border border-zinc-700 focus:border-amber-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            </div>
+            <div class="flex justify-end mt-4">
+              <button onclick="step2Action()" class="bg-amber-600 hover:bg-amber-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">Guardar Diagnóstico →</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Paso 3: autorizacion del cliente.
+    // Calculo el abono minimo en la UI para mostrarselo al usuario antes de que ingrese el monto.
+    function renderStep3(c) {
+      const tel   = sistema.telefonos.get(currentSerie);
+      const costo = tel?.diagnostico?.costoEstimado || 0;
+      const min   = (costo * 0.5).toFixed(2);
+      c.innerHTML = `
+        <div class="max-w-md mx-auto step-panel">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="bg-emerald-600 text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">3</span>
+            <div><h2 class="text-xl font-extrabold">Autorización</h2><p class="text-zinc-500 text-xs">Firma del cliente + abono mínimo del 50%</p></div>
+          </div>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-4 text-sm space-y-1">
+            <div class="flex justify-between"><span class="text-zinc-400">Costo estimado</span><span class="font-bold">S/ ${costo}</span></div>
+            <div class="flex justify-between text-emerald-400"><span>Abono mínimo (50%)</span><span class="font-bold">S/ ${min}</span></div>
+          </div>
+          ${tel?.autorizado ? `<div class="bg-emerald-950/30 border border-emerald-800/30 rounded-xl p-3 mb-4 text-xs text-emerald-400 font-bold">✓ Ya autorizado — Abono: S/ ${tel.abono}</div>` : ""}
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-zinc-400 mb-1 block">Monto de abono (S/) *</label>
+              <input id="s3_abono" type="number" min="${min}" placeholder="${min}" value="${tel?.abono||""}" class="w-full bg-zinc-900 border border-zinc-700 focus:border-emerald-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            </div>
+            <div class="flex items-center gap-2">
+              <input id="s3_firma" type="checkbox" class="w-4 h-4 accent-emerald-500" ${tel?.autorizado?"checked":""}/>
+              <label for="s3_firma" class="text-sm text-zinc-300">El cliente firma la autorización de reparación</label>
+            </div>
+            <div class="flex justify-end mt-4">
+              <button onclick="step3Action()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">Autorizar →</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Paso 4: asignacion de tecnico.
+    // Solo habilito en el select los tecnicos que tienen skill para la marca del equipo.
+    function renderStep4(c) {
+      const tel    = sistema.telefonos.get(currentSerie);
+      const marca  = tel?.marca || "";
+      const tecsHTML = sistema.tecnicos.map(t => {
+        const puede = t.puedeAtender(marca);
+        return `<option value="${t.nombre}" ${!puede?"disabled":""} ${tel?.tecnico===t.nombre?"selected":""}>
+          ${t.nombre} [${t.skills.join(", ")}]${!puede?" — Sin skill":""}
+        </option>`;
+      }).join("");
+      const sinTecs = !sistema.tecnicos.some(t => t.puedeAtender(marca));
+      c.innerHTML = `
+        <div class="max-w-md mx-auto step-panel">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="bg-violet-600 text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">4</span>
+            <div><h2 class="text-xl font-extrabold">Asignar Técnico</h2><p class="text-zinc-500 text-xs">Solo técnicos con skill para ${marca}</p></div>
+          </div>
+          ${tel?.tecnico ? `<div class="bg-violet-950/30 border border-violet-800/30 rounded-xl p-3 mb-4 text-xs text-violet-300 font-bold">✓ Técnico: ${tel.tecnico}</div>` : ""}
+          ${sinTecs ? `<div class="bg-red-950/30 border border-red-800/30 rounded-xl p-3 mb-4 text-xs text-red-400">⚠ No hay técnicos con skill para <strong>${marca}</strong>. Agrégalos desde ⚙️ Técnicos.</div>` : ""}
+          <div class="space-y-3">
+            <select id="s4_tecnico" class="w-full bg-zinc-900 border border-zinc-700 focus:border-violet-500 rounded-lg px-3 py-2.5 text-sm text-white transition">
+              <option value="">— Seleccionar técnico —</option>
+              ${tecsHTML}
+            </select>
+            <div class="flex justify-end mt-4">
+              <button onclick="step4Action()" class="bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">Asignar →</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Paso 5: gestion de repuestos.
+    // Los repuestos se agregan y eliminan en tiempo real sin recargar la pagina.
+    function renderStep5(c) {
+      const tel      = sistema.telefonos.get(currentSerie);
+      const totalRep = tel?.repuestos.reduce((a,r) => a + r.precio, 0) || 0;
+      c.innerHTML = `
+        <div class="max-w-md mx-auto step-panel">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="bg-orange-600 text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">5</span>
+            <div><h2 class="text-xl font-extrabold">Repuestos</h2><p class="text-zinc-500 text-xs">Agrega las piezas utilizadas</p></div>
+          </div>
+          <div class="flex gap-2 mb-4">
+            <input id="s5_nombre" type="text" placeholder="Nombre del repuesto" class="flex-1 bg-zinc-900 border border-zinc-700 focus:border-orange-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            <input id="s5_precio" type="number" min="0" placeholder="S/" class="w-24 bg-zinc-900 border border-zinc-700 focus:border-orange-500 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 transition"/>
+            <button onclick="step5AddRepuesto()" class="bg-orange-600 hover:bg-orange-500 text-white px-4 rounded-xl text-sm font-bold transition">+</button>
+          </div>
+          <div class="space-y-2 mb-4">
+            ${tel?.repuestos.length
+              ? tel.repuestos.map((r,i) => `
+                <div class="flex items-center justify-between bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
+                  <span>${r.nombre}</span>
+                  <div class="flex items-center gap-3">
+                    <span class="font-bold">S/ ${r.precio}</span>
+                    <button onclick="eliminarRepuesto(${i})" class="text-red-400 hover:text-red-300 text-xs">✕</button>
+                  </div>
+                </div>`).join("")
+              : `<p class="text-xs text-zinc-600 text-center py-4">Sin repuestos aún</p>`}
+          </div>
+          ${tel?.repuestos.length ? `<div class="flex justify-end text-sm font-bold border-t border-zinc-800 pt-3">Total repuestos: S/ ${totalRep}</div>` : ""}
+          <div class="flex justify-end mt-5">
+            <button onclick="goStep(6)" class="bg-orange-600 hover:bg-orange-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">Ver Estado Final →</button>
+          </div>
+        </div>`;
+    }
+
+    // Paso 6: resumen completo del equipo con costos y cambio de estado.
+    function renderStep6(c) {
+      const tel = sistema.telefonos.get(currentSerie);
+      if (!tel) { c.innerHTML = `<p class="text-zinc-500 text-sm">No hay equipo en flujo.</p>`; return; }
+      const costo   = tel.costoTotal();
+      const saldo   = tel.saldoPendiente();
+      const estados = ["INGRESADO","DIAGNOSTICADO","AUTORIZADO","EN_REPARACION","ENTREGADO","CANCELADO"];
+      c.innerHTML = `
+        <div class="max-w-lg mx-auto step-panel">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="bg-zinc-600 text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">6</span>
+            <div><h2 class="text-xl font-extrabold">Estado Final</h2><p class="text-zinc-500 text-xs">Resumen completo del equipo</p></div>
+          </div>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4 space-y-3 text-sm">
+            ${[["Equipo",tel.resumen()],["Serie",`<span class="mono">${tel.serie}</span>`],["IMEI",`<span class="mono">${tel.imei}</span>`],
+               ["Local",tel.local||"—"],["Técnico",tel.tecnico||"—"],["Fecha ingreso",tel.fechaIngreso]].map(([k,val])=>
+              `<div class="flex justify-between"><span class="text-zinc-400">${k}</span><span class="text-right">${val}</span></div>`).join("")}
+            ${tel.diagnostico ? `<div class="flex justify-between"><span class="text-zinc-400">Diagnóstico</span><span class="text-right max-w-xs">${tel.diagnostico.descripcion}</span></div>` : ""}
+            <hr class="border-zinc-800"/>
+            ${tel.repuestos.length
+              ? tel.repuestos.map(r=>`<div class="flex justify-between"><span class="text-zinc-300">${r.nombre}</span><span>S/ ${r.precio}</span></div>`).join("")
+              : `<p class="text-xs text-zinc-600">Sin repuestos</p>`}
+            <hr class="border-zinc-800"/>
+            <div class="flex justify-between"><span class="text-zinc-400">Reparación</span><span>S/ ${tel.diagnostico?.costoEstimado||0}</span></div>
+            <div class="flex justify-between"><span class="text-zinc-400">Repuestos</span><span>S/ ${tel.repuestos.reduce((a,r)=>a+r.precio,0)}</span></div>
+            <div class="flex justify-between font-bold text-white text-base"><span>Total</span><span>S/ ${costo.toFixed(2)}</span></div>
+            <div class="flex justify-between text-emerald-400 font-bold"><span>Abono recibido</span><span>S/ ${tel.abono.toFixed(2)}</span></div>
+            <div class="flex justify-between text-amber-400 font-bold"><span>Saldo pendiente</span><span>S/ ${saldo.toFixed(2)}</span></div>
+          </div>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-5">
+            <p class="text-xs text-zinc-400 mb-3">Cambiar estado:</p>
+            <div class="flex flex-wrap gap-2">
+              ${estados.map(e=>`
+                <button onclick="cambiarEstadoUI('${e}')" class="text-xs px-3 py-1.5 rounded-full border font-bold transition hover:opacity-80 ${badgeClass(e)} ${tel.estado===e?"ring-2 ring-white/30":""}">
+                  ${e}
+                </button>`).join("")}
+            </div>
+          </div>
+          <button onclick="currentSerie=null; goStep(0);" class="bg-zinc-700 hover:bg-zinc-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">← Nueva reparación</button>
+        </div>`;
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // ACCIONES DE LOS FORMULARIOS
+    // Cada stepNAction conecta el boton del paso con el metodo del sistema.
+    // ---------------------------------------------------------------------------
+
+    function step1Action() {
+      try {
+        const tel = sistema.registrarTelefono(v("s1_serie"),v("s1_imei"),v("s1_marca"),v("s1_modelo"),v("s1_prop"));
+        currentSerie = tel.serie;
+        actualizarSidebar(tel);
+        toast(`${tel.resumen()} registrado.`);
+        goStep(2);
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+    function step2Action() {
+      try {
+        const tel = sistema.agregarDiagnostico(currentSerie, v("s2_desc"), v("s2_costo"));
+        actualizarSidebar(tel);
+        toast("Diagnóstico guardado.");
+        goStep(3);
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+    function step3Action() {
+      try {
+        // Verifico el checkbox antes de llamar al sistema.
+        if (!document.getElementById("s3_firma").checked) {
+          toast("El cliente debe firmar la autorización.", "error");
+          return;
+        }
+        const tel = sistema.autorizar(currentSerie, v("s3_abono"));
+        actualizarSidebar(tel);
+        toast("Reparación autorizada.");
+        goStep(4);
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+    function step4Action() {
+      try {
+        const tel = sistema.asignarTecnico(currentSerie, v("s4_tecnico"));
+        actualizarSidebar(tel);
+        toast(`Técnico ${tel.tecnico} asignado.`);
+        goStep(5);
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+    function step5AddRepuesto() {
+      try {
+        sistema.agregarRepuesto(currentSerie, v("s5_nombre"), v("s5_precio"));
+        toast("Repuesto agregado.");
+        goStep(5);
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+    // Elimina el repuesto en la posicion idx usando splice.
+    function eliminarRepuesto(idx) {
+      const tel = sistema.telefonos.get(currentSerie);
+      if (!tel) return;
+      tel.repuestos.splice(idx, 1);
+      goStep(5);
+    }
+
+    function cambiarEstadoUI(estado) {
+      try {
+        const tel = sistema.cambiarEstado(currentSerie, estado);
+        actualizarSidebar(tel);
+        toast(`Estado → ${estado}`);
+        goStep(6);
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // PANEL SUPERVISOR
+    // ---------------------------------------------------------------------------
+
+    // Muestra u oculta el panel. Cuando se abre renderiza la tabla actualizada.
+    function toggleSupervisor() {
+      const p = document.getElementById("supervisorPanel");
+      p.classList.toggle("hidden");
+      if (!p.classList.contains("hidden")) renderSupervisor();
+    }
+
+    // Construye la tabla con todos los equipos.
+    // Si hay busqueda activa filtra antes de renderizar.
+    function renderSupervisor() {
+      const buscar = (document.getElementById("sv_buscar")?.value||"").toLowerCase();
+      const caja   = sistema.resumenCaja();
+      document.getElementById("sv_totalEquipos").textContent    = caja.total;
+      document.getElementById("sv_enCaja").textContent          = `S/ ${caja.enCaja.toFixed(2)}`;
+      document.getElementById("sv_porCobrar").textContent       = `S/ ${caja.porCobrar.toFixed(2)}`;
+      document.getElementById("sv_totalProyectado").textContent = `S/ ${caja.totalProyectado.toFixed(2)}`;
+      const tbody = document.getElementById("sv_tabla");
+      const vacio = document.getElementById("sv_vacio");
+      tbody.innerHTML = "";
+      let tels = Array.from(sistema.telefonos.values());
+      if (buscar) tels = tels.filter(t =>
+        [t.serie,t.marca,t.modelo,t.propietario].some(x => x.toLowerCase().includes(buscar)));
+      if (!tels.length) { vacio.classList.remove("hidden"); return; }
+      vacio.classList.add("hidden");
+      tels.forEach(tel => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-zinc-800/50 hover:bg-zinc-800/20 transition";
+        tr.innerHTML = `
+          <td class="px-4 py-3"><p class="font-bold text-sm">${tel.marca} ${tel.modelo}</p><p class="mono text-xs text-zinc-500">${tel.serie}</p></td>
+          <td class="px-4 py-3 text-sm text-zinc-300">${tel.propietario}</td>
+          <td class="px-4 py-3 text-xs text-zinc-400">${tel.local||"—"}</td>
+          <td class="px-4 py-3 text-xs text-zinc-300">${tel.tecnico||"—"}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full border text-xs font-bold ${badgeClass(tel.estado)}">${tel.estado}</span></td>
+          <td class="px-4 py-3 text-right text-sm font-bold">S/ ${tel.costoTotal().toFixed(2)}</td>
+          <td class="px-4 py-3 text-right text-sm text-emerald-400 font-bold">S/ ${tel.abono.toFixed(2)}</td>
+          <td class="px-4 py-3 text-right text-sm text-amber-400 font-bold">S/ ${tel.saldoPendiente().toFixed(2)}</td>
+          <td class="px-4 py-3 text-center">
+            <div class="flex gap-1 justify-center">
+              <button onclick="abrirModalEditar('${tel.serie}')" class="text-xs bg-blue-800 hover:bg-blue-700 text-blue-200 px-2 py-1 rounded-lg transition">✏️ Editar</button>
+              <button onclick="cargarEnFlujo('${tel.serie}')" class="text-xs bg-zinc-700 hover:bg-zinc-600 px-2 py-1 rounded-lg transition">📂 Cargar</button>
+              <button onclick="borrarRegistro('${tel.serie}')" class="text-xs bg-red-900 hover:bg-red-800 text-red-300 px-2 py-1 rounded-lg transition">🗑 Borrar</button>
+            </div>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Pre-llena el modal con los datos actuales del equipo para editarlos.
+    function abrirModalEditar(serie) {
+      const tel = sistema.telefonos.get(serie);
+      if (!tel) return;
+      const MARCAS = ["Apple","Samsung","Huawei","Xiaomi","Motorola","LG","Sony","OnePlus","Oppo","Vivo","Realme","Nokia","Asus","ZTE","Tecno"];
+      const selMarca = document.getElementById("ed_marca");
+      selMarca.innerHTML = MARCAS.map(m => `<option value="${m}" ${tel.marca===m?"selected":""}>${m}</option>`).join("");
+      const selTec = document.getElementById("ed_tecnico");
+      selTec.innerHTML = `<option value="">— Sin asignar —</option>` +
+        sistema.tecnicos.map(t => `<option value="${t.nombre}" ${tel.tecnico===t.nombre?"selected":""}>${t.nombre}</option>`).join("");
+      document.getElementById("ed_serie").value       = serie;
+      document.getElementById("ed_modelo").value      = tel.modelo;
+      document.getElementById("ed_prop").value        = tel.propietario;
+      document.getElementById("ed_imei").value        = tel.imei;
+      document.getElementById("ed_abono").value       = tel.abono;
+      document.getElementById("ed_diagnostico").value = tel.diagnostico ? tel.diagnostico.descripcion : "";
+      document.getElementById("ed_costo").value       = tel.diagnostico ? tel.diagnostico.costoEstimado : "";
+      document.getElementById("ed_estado").value      = tel.estado;
+      cerrarModal("modalTecnicos");
+      cerrarModal("modalLocales");
+      document.getElementById("modalEditar").classList.remove("hidden");
+    }
+
+    // Aplica los cambios del modal directamente sobre el objeto en el Map.
+    function guardarEdicion() {
+      const serie = document.getElementById("ed_serie").value;
+      const tel   = sistema.telefonos.get(serie);
+      if (!tel) return;
+      tel.marca       = document.getElementById("ed_marca").value    || tel.marca;
+      tel.modelo      = document.getElementById("ed_modelo").value   || tel.modelo;
+      tel.propietario = document.getElementById("ed_prop").value     || tel.propietario;
+      tel.imei        = document.getElementById("ed_imei").value     || tel.imei;
+      tel.abono       = Number(document.getElementById("ed_abono").value) || tel.abono;
+      tel.tecnico     = document.getElementById("ed_tecnico").value  || null;
+      tel.estado      = document.getElementById("ed_estado").value;
+      const desc  = document.getElementById("ed_diagnostico").value.trim();
+      const costo = document.getElementById("ed_costo").value;
+      if (desc || costo) {
+        tel.diagnostico = { descripcion: desc, costoEstimado: Number(costo), fecha: tel.diagnostico?.fecha || new Date().toLocaleDateString("es-PE") };
+      }
+      sistema._guardarStorage();
+      if (currentSerie === serie) actualizarSidebar(tel);
+      cerrarModal("modalEditar");
+      toast("Registro actualizado.");
+      renderSupervisor();
+    }
+
+    // Elimina el equipo del Map. Si era el activo limpia tambien el sidebar.
+    function borrarRegistro(serie) {
+      const tel = sistema.telefonos.get(serie);
+      if (!tel) return;
+      if (!confirm(`¿Eliminar el registro de ${tel.resumen()}? Esta acción no se puede deshacer.`)) return;
+      sistema.telefonos.delete(serie);
+      sistema._guardarStorage();
+      if (currentSerie === serie) {
+        currentSerie = null;
+        document.getElementById("telActivoNombre").textContent = "—";
+        document.getElementById("telActivoSerie").textContent  = "—";
+        document.getElementById("telActivoEstado").textContent = "";
+        document.getElementById("telActivoEstado").className   = "inline-block mt-2 px-2 py-0.5 rounded-full border text-xs font-bold";
+      }
+      toast(`Registro de ${tel.resumen()} eliminado.`, "warn");
+      renderSupervisor();
+    }
+
+    // Carga un equipo del historial en el flujo y cierra el supervisor.
+    function cargarEnFlujo(serie) {
+      currentSerie = serie;
+      actualizarSidebar(sistema.telefonos.get(serie));
+      toggleSupervisor();
+      goStep(6);
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // GESTION DE TECNICOS Y LOCALES
+    // ---------------------------------------------------------------------------
+
+    function abrirModalTecnicos() {
+      cerrarModal("modalLocales");
+      renderListaTecnicos();
+      document.getElementById("modalTecnicos").classList.remove("hidden");
+    }
+
+    function renderListaTecnicos() {
+      document.getElementById("mt_lista").innerHTML = sistema.tecnicos.map((t,i) => `
+        <div class="flex items-center justify-between bg-zinc-800/60 border border-zinc-700 rounded-xl px-3 py-2.5">
+          <div>
+            <p class="text-sm font-bold">${t.nombre}</p>
+            <p class="text-xs text-zinc-400">Skills: ${t.skills.join(", ")||"—"}</p>
+          </div>
+          <button onclick="eliminarTecnico(${i})" class="text-red-400 hover:text-red-300 text-xs">✕</button>
+        </div>`).join("");
+    }
+
+    function agregarTecnico() {
+      try {
+        sistema.agregarTecnicoSistema(
+          document.getElementById("mt_nombre").value.trim(),
+          document.getElementById("mt_skills").value.trim()
+        );
+        document.getElementById("mt_nombre").value = "";
+        document.getElementById("mt_skills").value = "";
+        renderListaTecnicos();
+        toast("Técnico agregado.");
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+    function eliminarTecnico(idx) {
+      sistema.tecnicos.splice(idx, 1);
+      sistema._guardarStorage();
+      renderListaTecnicos();
+      toast("Técnico eliminado.");
+    }
+
+    function abrirModalLocales() {
+      cerrarModal("modalTecnicos");
+      renderListaLocales();
+      document.getElementById("modalLocales").classList.remove("hidden");
+    }
+
+    function renderListaLocales() {
+      document.getElementById("ml_lista").innerHTML = sistema.locales.map((l,i) => `
+        <div onclick="seleccionarLocalUI('${l.nombre}')" class="flex items-center justify-between bg-zinc-800/60 border ${sistema.localActivo===l.nombre?"border-emerald-700":"border-zinc-700"} rounded-xl px-3 py-2.5 cursor-pointer hover:bg-zinc-700/40 transition">
+          <div>
+            <p class="text-sm font-bold">${l.nombre} ${sistema.localActivo===l.nombre?`<span class="text-emerald-400 text-xs">✓ activo</span>`:""}</p>
+            <p class="text-xs text-zinc-400">${l.direccion||"Sin dirección"}</p>
+          </div>
+          <button onclick="event.stopPropagation(); eliminarLocal(${i})" class="text-red-400 hover:text-red-300 text-xs">✕</button>
+        </div>`).join("");
+    }
+
+    function agregarLocal() {
+      try {
+        sistema.agregarLocal(
+          document.getElementById("ml_nombre").value.trim(),
+          document.getElementById("ml_direccion").value.trim()
+        );
+        document.getElementById("ml_nombre").value     = "";
+        document.getElementById("ml_direccion").value  = "";
+        renderListaLocales();
+        toast("Local agregado.");
+      } catch(e) { toast(e.message, "error"); }
+    }
+
+    function seleccionarLocalUI(nombre) {
+      sistema.seleccionarLocal(nombre);
+      document.getElementById("headerLocal").textContent = nombre;
+      renderListaLocales();
+      toast(`Local activo: ${nombre}`);
+    }
+
+    function eliminarLocal(idx) {
+      sistema.locales.splice(idx, 1);
+      sistema._guardarStorage();
+      renderListaLocales();
+      toast("Local eliminado.");
+    }
+
+    // Oculta cualquier modal por su id.
+    function cerrarModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // INICIO DE LA APP
+    // ---------------------------------------------------------------------------
+
+    // Si habia un local guardado lo muestro en el header.
+    if (sistema.localActivo) document.getElementById("headerLocal").textContent = sistema.localActivo;
+    renderStepper();
+    goStep(0);
+
+  </script>
+</body>
+</html>

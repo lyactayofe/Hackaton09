@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hackaton06 - Sistema de Reparaciones de Celulares</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>📱 Hackaton06 - Sistema de Reparaciones de Celulares</h1>
+      <p id="persistenciaInfo" style="color: green; font-weight: bold;"></p>
+      <form id="formReparacion">
+        <h2>Teléfono</h2>
+        <input type="text" id="serie" placeholder="Número de Serie" required />
+        <input type="text" id="imei" placeholder="IMEI" required />
+        <input type="text" id="marca" placeholder="Marca" required />
+        <input type="text" id="modelo" placeholder="Modelo" required />
+        <h2>Cliente</h2>
+        <input type="text" id="nombre" placeholder="Nombre" required />
+        <input type="text" id="documento" placeholder="Documento" required />
+        <button type="submit">Crear Reparación</button>
+      </form>
+    </div>
+    <div id="resultado" class="card hidden"></div>
+    <div id="panelProceso" class="card hidden">
+      <h3>Diagnóstico</h3>
+      <input type="text" id="descripcionDiag" placeholder="Descripción" />
+      <input type="number" id="costoDiag" placeholder="Costo estimado" />
+      <button id="btnDiagnostico">Registrar Diagnóstico</button>
+      <h3>Autorización</h3>
+      <input type="number" id="abono" placeholder="Monto abonado" />
+      <button id="btnAutorizar">Autorizar Reparación</button>
+      <h3>Asignación</h3>
+      <button id="btnAsignar">Asignar Técnico</button>
+      <h3>Agregar Repuesto</h3>
+      <input type="text" id="repNombre" placeholder="Nombre del repuesto">
+      <input type="number" id="repPrecio" placeholder="Precio">
+      <input type="number" id="repCantidad" placeholder="Cantidad">
+      <button type="button" id="btnAgregarRepuesto">Agregar Repuesto</button>
+      <h3>Total Servicio: S/ <span id="totalServicio">0.00</span></h3>
+      <ul id="listaRepuestos"></ul>
+      <h3>Finalizar</h3>
+      <button id="btnFinalizar">Finalizar Reparación</button>
+      <h3>Historial</h3>
+      <div id="historialEstados"></div>
+    </div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

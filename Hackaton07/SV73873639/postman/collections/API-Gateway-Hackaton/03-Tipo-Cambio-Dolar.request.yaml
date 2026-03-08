@@ -1,0 +1,23 @@
+$kind: http-request
+name: '03 - Consultar tipo de cambio del dólar en Perú'
+method: GET
+url: 'https://api.frankfurter.app/latest?from=USD&to=PEN'
+description: 'Consulta el tipo de cambio del dólar (USD) a soles peruanos (PEN) usando Frankfurter API. Completamente gratuita, sin API key.'
+order: 3000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Tipo de cambio obtenido", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene tasa de cambio PEN", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.rates).to.exist;
+          pm.expect(jsonData.rates.PEN).to.exist;
+      });
+
+      var data = pm.response.json();
+      console.log("Fecha:", data.date);
+      console.log("1 USD =", data.rates.PEN, "PEN (Soles)");

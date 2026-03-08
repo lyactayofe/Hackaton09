@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API Gateway - Hackaton 07 (Frontend)</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="container">
+      <div class="header">
+        <div>
+          <h2>API Gateway - Hackaton 07</h2>
+          <p class="muted">Frontend para probar 15 APIs públicas usando <code>fetch</code>. (Nota: CORS depende de cada API.)</p>
+        </div>
+        <div class="pill">
+          <span class="dot"></span>
+          <span>Directo a APIs públicas</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="cards" class="cards"></section>
+
+     <section class="result">
+  <div class="result-header">
+    <h3>Resultado</h3>
+    <div class="result-actions">
+      <button id="copy" class="btn">Copiar JSON</button>
+      <button id="clear" class="btn">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="result-tabs">
+    <button class="tab-btn active" data-tab="json">📄 JSON Raw</button>
+    <button class="tab-btn" data-tab="summary">✨ Interpretación</button>
+  </div>
+  
+  <pre id="output" class="output tab-panel active" data-panel="json">...</pre>
+  <div id="output-summary" class="output tab-panel" data-panel="summary">...</div>
+</section>
+    </main>
+
+    <footer class="container footer">
+      <p class="muted">Hecho para el homework de API Gateway - IDAT.</p>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

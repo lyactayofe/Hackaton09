@@ -1,0 +1,28 @@
+$kind: http-request
+name: '05 - Consultar poderes de un Pokémon específico'
+method: GET
+url: 'https://pokeapi.co/api/v2/pokemon/{{pokemon_name}}'
+description: 'Consulta los poderes, habilidades y estadísticas de un Pokémon específico. Cambia la variable pokemon_name para otro pokémon.'
+order: 5000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Pokémon encontrado", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene habilidades", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.abilities).to.be.an("array");
+      });
+
+      pm.test("Tiene estadísticas", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.stats).to.be.an("array");
+      });
+
+      var data = pm.response.json();
+      console.log("Pokémon:", data.name);
+      console.log("Habilidades:", data.abilities.map(a => a.ability.name).join(", "));
+      console.log("Tipos:", data.types.map(t => t.type.name).join(", "));

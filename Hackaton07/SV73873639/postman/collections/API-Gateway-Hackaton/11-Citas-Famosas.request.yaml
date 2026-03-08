@@ -1,0 +1,25 @@
+$kind: http-request
+name: '11 - Consultar citas famosas'
+method: GET
+url: 'https://dummyjson.com/quotes?limit=10'
+description: 'Consulta citas famosas usando DummyJSON (alternativa gratuita a quotes.rest que requiere pago). Devuelve 10 citas aleatorias.'
+order: 11000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Citas obtenidas", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene lista de citas", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.quotes).to.be.an("array");
+      });
+
+      var data = pm.response.json();
+      data.quotes.slice(0,3).forEach(q => {
+          console.log("Cita:", q.quote);
+          console.log("Autor:", q.author);
+          console.log("---");
+      });

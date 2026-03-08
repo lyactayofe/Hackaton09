@@ -1,0 +1,55 @@
+$kind: collection
+name: API Gateway - Hackaton 07
+description: |-
+  Colección de 15 APIs públicas para el homework de API Gateway.
+  Incluye variables y tests básicos (status, tiempo de respuesta, content-type y campos clave).
+variables:
+  - key: github_base_url
+    value: 'https://api.github.com'
+  - key: wttr_base_url
+    value: 'https://wttr.in'
+  - key: frankfurter_base_url
+    value: 'https://api.frankfurter.app'
+  - key: pokeapi_base_url
+    value: 'https://pokeapi.co/api/v2'
+  - key: rickandmorty_base_url
+    value: 'https://rickandmortyapi.com/api'
+  - key: cocktail_base_url
+    value: 'https://www.thecocktaildb.com/api/json/v1/1'
+  - key: fakestore_base_url
+    value: 'https://fakestoreapi.com'
+  - key: unsplash_base_url
+    value: 'https://api.unsplash.com'
+  - key: dummyjson_base_url
+    value: 'https://dummyjson.com'
+  - key: randomuser_base_url
+    value: 'https://randomuser.me/api'
+  - key: tmdb_base_url
+    value: 'https://api.themoviedb.org/3'
+  - key: nasa_base_url
+    value: 'https://api.nasa.gov'
+folders:
+  - name: 01 - GitHub
+    order: 1000
+  - name: 02 - Clima
+    order: 2000
+  - name: 03 - Tipo de Cambio
+    order: 3000
+  - name: 04 - PokeAPI
+    order: 4000
+  - name: 05 - Rick & Morty
+    order: 5000
+  - name: 06 - Cocteles
+    order: 6000
+  - name: 07 - Tienda
+    order: 7000
+  - name: 08 - Fotos
+    order: 8000
+  - name: 09 - Citas
+    order: 9000
+  - name: 10 - Usuarios
+    order: 10000
+  - name: 11 - Peliculas
+    order: 11000
+  - name: 12 - NASA
+    order: 12000

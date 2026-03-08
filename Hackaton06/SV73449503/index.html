@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reto 2 - JavaScript y HTTP + WebStorage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Chakra+Petch:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="panel hero">
+        <p class="kicker">Reto 2</p>
+        <h1>Hackaton06</h1>
+        <p>
+          Sistema para reparaciones de celulares con clases, objetos, simulación HTTP y persistencia
+          en almacenamiento web.
+        </p>
+      </header>
+
+      <section class="panel columns two">
+        <article>
+          <h2>1) Ingreso del equipo</h2>
+          <form id="form-ingreso" class="form">
+            <label>Cliente <input name="cliente" required /></label>
+            <label>Número de serie <input name="serie" required /></label>
+            <label>IMEI <input name="imei" required /></label>
+            <label>Marca <input name="marca" placeholder="Samsung" required /></label>
+            <label>Modelo <input name="modelo" required /></label>
+            <label>Sucursal <input name="sucursal" required /></label>
+            <button type="submit">Registrar</button>
+          </form>
+        </article>
+
+        <article>
+          <h2>Reparación activa</h2>
+          <label>Seleccionar reparación
+            <select id="reparacion-select"></select>
+          </label>
+          <div id="estado-actual" class="state">Sin casos</div>
+          <ul id="historial" class="stack"></ul>
+        </article>
+      </section>
+
+      <section class="panel columns three">
+        <article>
+          <h2>2) Primera revisión</h2>
+          <form id="form-diagnostico" class="form">
+            <label>Diagnóstico
+              <textarea name="descripcion" rows="4" required></textarea>
+            </label>
+            <label>Costo estimado (S/)
+              <input name="costo" type="number" min="1" required />
+            </label>
+            <button type="submit">Guardar diagnóstico</button>
+          </form>
+        </article>
+
+        <article>
+          <h2>3) Autorización y abono</h2>
+          <form id="form-condiciones" class="form">
+            <label class="inline">
+              <input type="checkbox" name="autorizacion" />
+              Autorización escrita del usuario
+            </label>
+            <label>Abono (S/)
+              <input name="abono" type="number" min="0" step="0.01" />
+            </label>
+            <button type="submit">Registrar condiciones</button>
+          </form>
+        </article>
+
+        <article>
+          <h2>4) Técnico y repuestos</h2>
+          <form id="form-tecnico" class="form">
+            <label>Técnico
+              <select id="tecnico-select" name="tecnico"></select>
+            </label>
+            <button type="submit">Asignar técnico</button>
+          </form>
+          <form id="form-repuesto" class="form compact">
+            <label>Código <input name="codigo" required /></label>
+            <label>Nombre <input name="nombre" required /></label>
+            <label>Costo <input name="costo" type="number" min="1" required /></label>
+            <button type="submit">Agregar repuesto</button>
+          </form>
+          <ul id="repuestos" class="stack"></ul>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>5) Estaciones de trabajo</h2>
+        <div class="actions">
+          <button data-action="iniciar">Iniciar reparación</button>
+          <button data-action="calidad">Pasar a control de calidad</button>
+          <button data-action="listo">Listo para entrega</button>
+          <button data-action="entregar">Entregar</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Resumen</h2>
+        <pre id="resumen"></pre>
+      </section>
+
+      <section class="panel mini">
+        <h2>WebStorage</h2>
+        <p><strong>localStorage:</strong> guarda reparaciones e historial persistente.</p>
+        <p><strong>sessionStorage:</strong> guarda la reparación seleccionada durante la sesión.</p>
+        <button id="btn-limpiar">Limpiar localStorage del reto</button>
+      </section>
+
+      <p id="toast" class="toast" aria-live="polite"></p>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
+
+
+

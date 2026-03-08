@@ -1,0 +1,27 @@
+$kind: http-request
+name: '02 - Consultar el Clima de una ciudad'
+method: GET
+url: 'https://wttr.in/{{city}}?format=j1'
+description: 'Consulta el clima actual de una ciudad. Usa wttr.in que es gratuito y no requiere API key. Cambia la variable city para otra ciudad.'
+order: 2000
+headers:
+  - key: Accept
+    value: 'application/json'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Clima obtenido", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene datos del clima", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.current_condition).to.exist;
+      });
+
+      var data = pm.response.json();
+      if(data.current_condition && data.current_condition[0]) {
+          console.log("Temperatura (C):", data.current_condition[0].temp_C);
+          console.log("Descripción:", data.current_condition[0].weatherDesc[0].value);
+      }

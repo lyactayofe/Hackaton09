@@ -1,0 +1,34 @@
+$kind: http-request
+name: '13 - Consultar top de películas de estreno'
+method: GET
+url: 'https://api.themoviedb.org/3/movie/now_playing?language=es-PE&page=1'
+description: 'Consulta el top de películas en estreno usando TMDB. REQUIERE API KEY gratuita en https://developer.themoviedb.org - Registrarse y obtener API key. Reemplaza YOUR_TMDB_KEY en el environment.'
+order: 13000
+headers:
+  - key: Authorization
+    value: 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzNWI3NTQ5YmExZDQwNWMzMmM3ZmU2ZGVlNzQ2Mzg5MiIsIm5iZiI6MTc3Mjc3MTc1OC42NDIsInN1YiI6IjY5YWE1OWFlNGY1MTU3MjA3Yzk5ODQ3MyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.KRnomA8Xt4RU25EGtBx_iyY02Fy0cGD4ETTCKJLEtZk'
+  - key: accept
+    value: 'application/json'
+queryParams:
+  - key: language
+    value: es-PE
+  - key: page
+    value: '1'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Películas obtenidas", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene lista de películas", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.results).to.be.an("array");
+      });
+
+      var data = pm.response.json();
+      console.log("Películas en estreno:");
+      data.results.slice(0,5).forEach((m, i) => {
+          console.log((i+1) + ".", m.title, "- Rating:", m.vote_average);
+      });

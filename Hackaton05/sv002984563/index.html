@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reparacion de celulares</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <h1>Sistema de reparacion de celulares</h1>
+    <section>
+        <h2>Ingreso de equipo</h2>
+        <form id="ingreso">
+
+        <input type="text" id="marca" placeholder="Marca" required>
+        <input type="text" id="imei" placeholder="IMEI (15 digitos)" maxlength="15" required> 
+        <input type="text" id="serie" placeholder="Numero de serie" required>
+        <input type="text" id="diagnostico" placeholder="Primer diagnostico" required>
+        <input type="text" id="costo" placeholder="Costo de reparacion" required>
+
+        <label>
+            <input type="checkbox" id="autorizacion">
+            Autorizacion escrita firmada
+        </label>
+
+        <input type="number" id="abono" placeholder="Adono 50%" required>
+
+        <button type="submit">Registrar equipo</button>
+        </form>
+    </section>
+
+    <hr>
+
+    <section>
+        <h2>Equipos en sistema</h2>
+        <div id="listaEquipos"></div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

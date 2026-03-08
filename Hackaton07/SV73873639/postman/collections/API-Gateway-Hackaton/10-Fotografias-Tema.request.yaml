@@ -1,0 +1,32 @@
+$kind: http-request
+name: '10 - Consultar fotografías por tema y tamaño'
+method: GET
+url: 'https://api.unsplash.com/search/photos?query=nature&per_page=10&orientation=landscape'
+description: 'Consulta fotografías de Unsplash por tema y tamaño. REQUIERE API KEY gratuita en https://unsplash.com/developers - Registrarse y crear una app. Reemplaza YOUR_UNSPLASH_KEY en el environment.'
+order: 10000
+headers:
+  - key: Authorization
+    value: 'Client-ID {{unsplash_access_key}}'
+queryParams:
+  - key: query
+    value: nature
+  - key: per_page
+    value: '10'
+  - key: orientation
+    value: landscape
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Fotos obtenidas", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Tiene resultados de fotos", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.results).to.be.an("array");
+      });
+
+      var data = pm.response.json();
+      console.log("Fotos encontradas:", data.total);
+      data.results.slice(0,3).forEach(p => console.log("- Foto:", p.description || p.alt_description));

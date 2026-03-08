@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZHOU CO // SISTEMA DE GESTIÓN 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stars"></div>
+
+    <div id="modal-magico">
+        <div class="modal-caja-magica">
+            <h2 id="titulo-magico"></h2>
+            <p id="mensaje-magico"></p>
+            <div class="modal-botones" id="botones-magicos"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="main-header">
+            <h1 class="h1">ZHOU CO</h1>
+            <p>SISTEMA DE GESTIÓN TÉCNICA PROFESIONAL</p>
+            
+            <nav class="main-nav">
+                <button onclick="navegar('servicio')" id="nav-servicio" class="nav-btn active">GESTIÓN DE SERVICIO</button>
+                <button onclick="navegar('tickets')" id="nav-tickets" class="nav-btn">PANEL DE TICKETS</button>
+                <button onclick="navegar('tecnicos')" id="nav-tecnicos" class="nav-btn">TECNICOS</button>
+            </nav>
+        </header>
+
+        <main id="page-servicio" class="page-content">
+            <div class="progress-card card">
+                <div class="progress-track"><div class="progress-fill" id="main-progress"></div></div>
+                <div class="steps-labels">
+                    <div class="step-tag">REGISTRO</div>
+                    <div class="step-tag">REVISIÓN</div>
+                    <div class="step-tag">AUTORIZACIÓN</div>
+                    <div class="step-tag">TALLER</div>
+                    <div class="step-tag">ENTREGA</div>
+                </div>
+            </div>
+
+            <section class="card" id="section-ingreso">
+                <h2 class="section-title">1. Registro de Cliente y Dispositivo</h2>
+                <form id="repair-form">
+                    <div class="field-group">
+                        <label>NOMBRE DEL CLIENTE</label>
+                        <input type="text" id="cliente" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="field-grid">
+                        <div class="field-group">
+                            <label>MARCA</label>
+                            <select id="marca" onchange="cargarModelos()" required></select>
+                        </div>
+                        <div class="field-group">
+                            <label>MODELO</label>
+                            <select id="modelo" disabled required></select>
+                        </div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field-group">
+                            <label>Nº SERIE (10 DÍGITOS)</label>
+                            <input type="text" id="serie" maxlength="10" required placeholder="0012345678" oninput="validarDigitos(this)">
+                        </div>
+                        <div class="field-group">
+                            <label>IMEI (15 DÍGITOS)</label>
+                            <input type="text" id="imei" maxlength="15" required placeholder="35678..." oninput="validarDigitos(this)">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-neon-blue">VALIDAR E INGRESAR AL SISTEMA →</button>
+                </form>
+            </section>
+
+            <section class="card hidden" id="section-fases">
+                <h2 class="section-title">2. Gestión de Estación de Trabajo</h2>
+                <div id="status-display" class="status-box"></div>
+                <div id="fase-dinamica" class="fase-content"></div>
+                <button onclick="siguienteFase()" class="btn-neon-pink" id="btn-next">CONFIRMAR Y AVANZAR →</button>
+            </section>
+        </main>
+
+       <main id="page-tickets" class="page-content hidden">
+    <div class="card panel-tickets-container">
+        <div class="header-split">
+            <div>
+                <h2 class="section-title">CENTRAL DE GESTIÓN DE TICKETS</h2>
+                <p style="font-size: 0.8rem; color: var(--neon-blue); margin-top: -15px; margin-bottom: 15px;">
+                    Historial completo de reparaciones y estados finalizados
+                </p>
+            </div>
+            <input type="text" id="search-ticket" placeholder="🔍 Buscar por cliente, equipo o técnico..." oninput="renderizarPanelTickets()">
+        </div>
+
+        <div id="lista-tickets-global"></div>
+
+        <div style="text-align: right; margin-top: 20px;">
+            <button onclick="limpiarTodoElHistorial()" class="btn-rojo" style="width: auto;">
+                BORRAR BASE DE DATOS LOCAL
+            </button>
+        </div>
+    </div>
+</main>
+
+        <main id="page-tecnicos" class="page-content hidden">
+            <div class="card">
+                <h2 class="section-title">STAFF TÉCNICO Y SKILLS</h2>
+                <div id="lista-tecnicos-grid" class="tech-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
